@@ -240,6 +240,14 @@ window.SNC = (function () {
       const key = this.lastKey();
       return key ? readMap()[key] || null : null;
     },
+    clearLocalData() {
+      try {
+        localStorage.removeItem(SUB_KEY);
+        localStorage.removeItem(CUR_KEY);
+        localStorage.removeItem(LAST_KEY);
+        localStorage.removeItem(LAST_REC_KEY);
+      } catch (e) {}
+    },
   };
 })();
 
