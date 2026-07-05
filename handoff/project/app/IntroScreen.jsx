@@ -1,7 +1,7 @@
 /* IntroScreen.jsx — P0 인트로/랜딩.
    layout: "워시" | "이미지" | "오버레이"  (히어로 3가지 변형, Tweaks로 전환) */
 
-function IntroScreen({ onStart, layout = "워시" }) {
+function IntroScreen({ onStart, onCheck, layout = "워시" }) {
   const { Button, HeroWash, Icon, Tag } = window.HarvestDesignSystem_eb006c;
   const spaces = window.CONTEST_SPACES;
   const cfg = window.SNC_CONFIG;
@@ -104,9 +104,14 @@ function IntroScreen({ onStart, layout = "워시" }) {
 
       {/* CTA */}
       <section style={{ padding: "12px 26px 34px", position: "sticky", bottom: 0, background: "linear-gradient(to top, var(--surface-page) 72%, rgba(255,248,241,0))" }}>
-        <Button variant="primary" size="lg" fullWidth rightIcon="arrow-right" onClick={onStart}>
-          참여 시작하기
-        </Button>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <Button variant="primary" size="lg" fullWidth rightIcon="arrow-right" onClick={onStart}>
+            참여 시작하기
+          </Button>
+          <Button variant="secondary" size="lg" fullWidth leftIcon="check-check" onClick={onCheck}>
+            신청 내용 확인하기
+          </Button>
+        </div>
       </section>
     </div>
   );

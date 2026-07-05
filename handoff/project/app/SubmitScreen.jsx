@@ -29,11 +29,11 @@ function SubmitScreen({ layout = "카드" }) {
       return;
     }
     // 제출 직전 중복 재확인 (동시 제출 방지 — 시나리오 P2-S3)
-    if (current.phone && window.SNC.exists(current.phone)) {
-      window.goPage("lookup", { phone: window.SNC.digits(current.phone) });
+    if (current.name && current.phone && window.SNC.exists(current.name, current.phone)) {
+      window.goPage("lookup", window.SNC.lookupParams(current.name, current.phone));
       return;
     }
-    const record = { name: applicantName, phone: current.phone || "", spaces: names };
+    const record = { name: applicantName, affiliation: current.affiliation || "", phone: window.SNC.digits(current.phone || ""), spaces: names };
     if (current.phone) window.SNC.saveSubmission(record);
     window.goPage("complete");
   };

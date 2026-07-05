@@ -1,5 +1,5 @@
 /* LookupScreen.jsx — P4 내 제출 내용 조회 (읽기 전용).
-   ?phone= 파라미터 → 저장 데이터 조회. 없으면 최근 제출/데모로 폴백.
+   ?name=&phone= 파라미터 → 저장 데이터 조회.
    파라미터는 있으나 데이터 없음 → "조회할 내용이 없습니다" (시나리오 P4-S2). */
 
 function LookupScreen() {
@@ -7,14 +7,38 @@ function LookupScreen() {
   const spaces = window.CONTEST_SPACES;
 
   const params = new URLSearchParams(window.location.search);
+  const nameParam = params.get("name");
   const phoneParam = params.get("phone");
+  const hasParams = Boolean(nameParam && phoneParam);
   let rec = null;
   let notFound = false;
-  if (phoneParam) {
-    rec = window.SNC.find(phoneParam);
+
+  if (hasParams) {
+    rec = window.SNC.find(nameParam, phoneParam);
     if (!rec) notFound = true;
-  } else {
-    rec = window.SNC.lastRecord() || window.SNC.DEMO_RECORD;
+  }
+
+  /* 이름·연락처 없이 접근 — 확인 페이지로 안내 */
+  if (!hasParams) {
+    return (
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", padding: "40px 30px", gap: 20 }}>
+        <span style={{ width: 76, height: 76, borderRadius: "var(--radius-full)", background: "var(--surface-wash)", color: "var(--accent)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+          <Icon name="user" size={34} strokeWidth={1.75} />
+        </span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <h2 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "var(--text-heading)", fontWeight: 600, letterSpacing: "0.015em", color: "var(--text-primary)" }}>
+            이름과 연락처를 입력해 주세요
+          </h2>
+          <p style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "var(--text-caption)", lineHeight: 1.6, letterSpacing: "0.015em", color: "var(--text-secondary)" }}>
+            신청 내용 확인 페이지에서<br />참여 시 입력한 이름과 연락처로 조회할 수 있어요.
+          </p>
+        </div>
+        <div style={{ width: "100%", maxWidth: 320, display: "flex", flexDirection: "column", gap: 10 }}>
+          <Button variant="primary" size="md" fullWidth leftIcon="check-check" onClick={() => window.goPage("check")}>신청 내용 확인하기</Button>
+          <Button variant="ghost" size="md" fullWidth onClick={() => window.goPage("intro")}>처음으로</Button>
+        </div>
+      </div>
+    );
   }
 
   /* 조회 데이터 없음 */
@@ -29,11 +53,12 @@ function LookupScreen() {
             조회할 내용이 없습니다
           </h2>
           <p style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "var(--text-caption)", lineHeight: 1.6, letterSpacing: "0.015em", color: "var(--text-secondary)" }}>
-            아직 접수된 신청 내역이 없어요.<br />공모에 참여해 이름을 제안해 주세요.
+            입력하신 이름과 연락처가 모두 일치하는<br />신청 내역이 없어요. 다시 확인해 주세요.
           </p>
         </div>
         <div style={{ width: "100%", maxWidth: 320, display: "flex", flexDirection: "column", gap: 10 }}>
           <Button variant="primary" size="md" fullWidth rightIcon="arrow-right" onClick={() => window.goPage("apply")}>참여 시작하기</Button>
+          <Button variant="secondary" size="md" fullWidth leftIcon="check-check" onClick={() => window.goPage("check")}>다시 조회하기</Button>
           <Button variant="ghost" size="md" fullWidth onClick={() => window.goPage("intro")}>처음으로</Button>
         </div>
       </div>
@@ -59,8 +84,13 @@ function LookupScreen() {
           <div style={{ display: "flex", gap: 18 }}>
             <SummaryItem icon="user" label="이름" value={rec.name} />
             <div style={{ width: 1, background: "var(--border-divider)" }}></div>
-            <SummaryItem icon="phone" label="연락처" value={rec.phone} />
+            <SummaryItem icon="phone" label="연락처" value={window.formatPhone(rec.phone)} />
           </div>
+          {rec.affiliation ? (
+            <div style={{ paddingTop: 10, borderTop: "1px solid var(--border-divider)" }}>
+              <SummaryItem icon="users" label="소속" value={rec.affiliation} />
+            </div>
+          ) : null}
           {submittedAt ? (
             <div style={{ display: "flex", alignItems: "center", gap: 6, paddingTop: 10, borderTop: "1px solid var(--border-divider)", fontFamily: "var(--font-sans)", fontSize: 12, letterSpacing: "0.015em", color: "var(--text-tertiary)" }}>
               <Icon name="clock" size={13} /> 제출 일시 · {submittedAt}
@@ -76,7 +106,10 @@ function LookupScreen() {
       </div>
 
       <div style={{ padding: "8px 26px 34px", display: "flex", flexDirection: "column", gap: 14 }}>
-        <Notice tone="info" icon="lock">제출 내용은 수정할 수 없습니다.</Notice>
+        <Notice tone="info" icon="lock">제출 내용은 읽기 전용이며, 웹에서 직접 수정할 수 없습니다.</Notice>
+        <Button variant="secondary" size="md" fullWidth leftIcon="check-check" onClick={() => window.goPage("check")}>
+          다시 조회하기
+        </Button>
         <Button variant="ghost" size="md" fullWidth leftIcon="arrow-left" onClick={() => window.goPage("intro")}>
           처음으로
         </Button>

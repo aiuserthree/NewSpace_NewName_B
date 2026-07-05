@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>인트로 · 공간 이름 공모전</title>
+<title>신청 내용 확인 · 공간 이름 공모전</title>
 <link rel="stylesheet" href="_ds/harvest-design-system-eb006cd2-b93b-4476-9a95-070aac609ea4/tokens/fonts.css" />
 <link rel="stylesheet" href="_ds/harvest-design-system-eb006cd2-b93b-4476-9a95-070aac609ea4/tokens/colors.css" />
 <link rel="stylesheet" href="_ds/harvest-design-system-eb006cd2-b93b-4476-9a95-070aac609ea4/tokens/typography.css" />
@@ -24,34 +24,13 @@
 <body>
 <div id="root"></div>
 <script type="text/babel" src="app/shared.jsx"></script>
-<script type="text/babel" src="app/IntroScreen.jsx"></script>
-<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="app/CheckEntryScreen.jsx"></script>
 <script type="text/babel">
-  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-    "introLayout": "워시"
-  }/*EDITMODE-END*/;
-
-  function App() {
-    const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
-    return (
-      <React.Fragment>
-        <Shell>
-          <IntroScreen layout={t.introLayout} onStart={() => goPage("apply")} onCheck={() => goPage("check")} />
-        </Shell>
-        <TweaksPanel title="Tweaks">
-          <TweakSection label="인트로 레이아웃" />
-          <TweakRadio
-            label="히어로 스타일"
-            value={t.introLayout}
-            options={["워시", "이미지", "오버레이"]}
-            onChange={(v) => setTweak("introLayout", v)}
-          />
-        </TweaksPanel>
-      </React.Fragment>
-    );
-  }
-
-  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  ReactDOM.createRoot(document.getElementById("root")).render(
+    <Shell>
+      <CheckEntryScreen />
+    </Shell>
+  );
 </script>
 </body>
 </html>

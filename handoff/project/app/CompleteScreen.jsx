@@ -6,7 +6,14 @@ function CompleteScreen() {
   const cfg = window.SNC_CONFIG;
   const rec = window.SNC.lastRecord();
   const name = rec && rec.name ? rec.name : "";
-  const phoneDigits = rec ? window.SNC.digits(rec.phone) : "";
+
+  const openLookup = () => {
+    if (rec && rec.name && rec.phone) {
+      window.goPage("lookup", window.SNC.lookupParams(rec.name, rec.phone));
+    } else {
+      window.goPage("check");
+    }
+  };
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", padding: "40px 30px", gap: 22 }}>
@@ -33,7 +40,7 @@ function CompleteScreen() {
       </div>
 
       <div style={{ width: "100%", maxWidth: 340, display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
-        <Button variant="secondary" size="md" fullWidth leftIcon="check-check" onClick={() => window.goPage("lookup", phoneDigits ? { phone: phoneDigits } : undefined)}>
+        <Button variant="secondary" size="md" fullWidth leftIcon="check-check" onClick={openLookup}>
           내 제출 내용 보기
         </Button>
         <Button variant="ghost" size="md" fullWidth onClick={() => window.goPage("intro")}>

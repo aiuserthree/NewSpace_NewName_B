@@ -13,10 +13,46 @@ window.SNC_CONFIG = {
   isTempDeadline: true,
   // ⚠️ 임시 개인정보 안내 문구 — 확정 후 교체 (열린 이슈 #5)
   privacyNotice:
-    "입력하신 이름과 연락처는 공모 진행과 중복 확인을 위해서만 사용되며, 공모 종료 후 안전하게 파기됩니다.",
+    "입력하신 이름, 연락처, 소속(선택)은 공모 진행과 중복 확인을 위해서만 사용되며, 공모 종료 후 안전하게 파기됩니다.",
   isTempPrivacy: true,
+  privacyTerms: {
+    title: "개인정보 수집·이용 동의",
+    updatedAt: "2026년 7월 5일",
+    sections: [
+      {
+        heading: "1. 수집·이용 목적",
+        body: "공간 이름 공모전 참여 접수, 중복 신청 확인, 공모 진행 안내 및 결과 통보",
+      },
+      {
+        heading: "2. 수집 항목",
+        body: "이름, 연락처(휴대전화 번호), 소속(선택)",
+      },
+      {
+        heading: "3. 보유·이용 기간",
+        body: "공모 종료 후 30일 이내 파기 (관련 법령에 따라 보관이 필요한 경우 해당 기간까지 보관)",
+      },
+      {
+        heading: "4. 동의 거부 권리",
+        body: "개인정보 수집·이용에 동의하지 않을 권리가 있으나, 동의하지 않을 경우 공모 참여가 제한될 수 있습니다.",
+      },
+      {
+        heading: "5. 문의",
+        body: "개인정보 처리와 관련한 문의는 교회 사무실로 연락해 주세요.",
+      },
+    ],
+  },
   voteNotice:
     "제안해 주신 이름 중 상위 후보는 추후 현장 스티커 투표로 최종 결정됩니다.",
+  // ⚠️ 임시 담당자 연락처 — 확정 후 교체
+  phoneCorrectionNotice: {
+    title: "이름과 연락처를 잘못 입력하셨나요?",
+    body: "신청 내용 확인은 이름과 연락처가 모두 일치해야 합니다. 제출 후에는 웹에서 직접 수정할 수 없으므로, 공모 기간 중 교회 사무실(담당자)로 연락해 주시면 신청 정보를 확인·수정해 드립니다.",
+    contactLabel: "문의",
+    contact: "교회 사무실 (연락처 확정 후 안내)",
+    isTempContact: true,
+  },
+  checkEntryGuide:
+    "공모 참여 시 입력한 이름과 연락처가 모두 일치해야 신청 내용을 확인할 수 있어요.",
 };
 
 /* ------------------------------------------------------------------ *
@@ -67,6 +103,7 @@ window.SNC_PAGES = {
   submit: "P2-submit.html",
   complete: "P3-complete.html",
   lookup: "P4-lookup.html",
+  check: "P5-check.html",
 };
 window.goPage = function (key, params) {
   const base = window.SNC_PAGES[key] || key;
@@ -75,17 +112,19 @@ window.goPage = function (key, params) {
 };
 
 /* ------------------------------------------------------------------ *
- * 4. 저장소 (localStorage) — 핸드폰 번호를 고유 키로 사용
- *    데모 번호 010-0000-0000 은 항상 "기존 신청자"로 판별되도록 시드.
+ * 4. 저장소 (localStorage) — 이름 + 연락처 조합을 고유 키로 사용
+ *    데모(김은혜 + 010-0000-0000)는 항상 "기존 신청자"로 판별되도록 시드.
  * ------------------------------------------------------------------ */
 window.SNC = (function () {
-  const SUB_KEY = "snc.submissions.v1";
+  const SUB_KEY = "snc.submissions.v2";
   const CUR_KEY = "snc.current.v1";
-  const LAST_KEY = "snc.lastPhone.v1";
+  const LAST_KEY = "snc.lastKey.v2";
   const DEMO_PHONE = "01000000000";
+  const DEMO_NAME = "김은혜";
   const DEMO_RECORD = {
-    name: "김은혜",
-    phone: "010-0000-0000",
+    name: DEMO_NAME,
+    affiliation: "청년부",
+    phone: DEMO_PHONE,
     submittedAt: "2026-07-04T10:24:00",
     demo: true,
     spaces: {
@@ -103,25 +142,34 @@ window.SNC = (function () {
     }
   };
   const digits = (v) => (v || "").replace(/\D/g, "");
+  const normalizeName = (v) => (v || "").trim().replace(/\s+/g, " ");
+  const makeKey = (name, phone) => `${normalizeName(name)}|${digits(phone)}`;
   function readMap() {
     const m = parse(localStorage.getItem(SUB_KEY), {});
-    if (!m[DEMO_PHONE]) {
-      m[DEMO_PHONE] = DEMO_RECORD;
+    const demoKey = makeKey(DEMO_NAME, DEMO_PHONE);
+    if (!m[demoKey]) {
+      m[demoKey] = DEMO_RECORD;
       try { localStorage.setItem(SUB_KEY, JSON.stringify(m)); } catch (e) {}
     }
     return m;
   }
   return {
     DEMO_PHONE,
+    DEMO_NAME,
     DEMO_RECORD,
     digits,
-    find(phone) {
-      const d = digits(phone);
-      if (!d) return null;
-      return readMap()[d] || null;
+    normalizeName,
+    makeKey,
+    lookupParams(name, phone) {
+      return { name: normalizeName(name), phone: digits(phone) };
     },
-    exists(phone) {
-      return !!this.find(phone);
+    find(name, phone) {
+      const key = makeKey(name, phone);
+      if (!key || key === "|") return null;
+      return readMap()[key] || null;
+    },
+    exists(name, phone) {
+      return !!this.find(name, phone);
     },
     saveCurrent(obj) {
       try { localStorage.setItem(CUR_KEY, JSON.stringify(obj)); } catch (e) {}
@@ -130,21 +178,25 @@ window.SNC = (function () {
       return parse(localStorage.getItem(CUR_KEY), null);
     },
     saveSubmission(rec) {
-      const d = digits(rec.phone);
+      const key = makeKey(rec.name, rec.phone);
       const m = readMap();
-      m[d] = Object.assign({}, rec, { submittedAt: new Date().toISOString() });
+      m[key] = Object.assign({}, rec, {
+        name: normalizeName(rec.name),
+        phone: digits(rec.phone),
+        submittedAt: new Date().toISOString(),
+      });
       try {
         localStorage.setItem(SUB_KEY, JSON.stringify(m));
-        localStorage.setItem(LAST_KEY, d);
+        localStorage.setItem(LAST_KEY, key);
       } catch (e) {}
-      return d;
+      return key;
     },
-    lastPhone() {
+    lastKey() {
       return localStorage.getItem(LAST_KEY) || "";
     },
     lastRecord() {
-      const d = this.lastPhone();
-      return d ? readMap()[d] || null : null;
+      const key = this.lastKey();
+      return key ? readMap()[key] || null : null;
     },
   };
 })();
@@ -159,8 +211,36 @@ window.formatPhone = function (v) {
   if (d.length < 11) return d.slice(0, 3) + "-" + d.slice(3, 6) + "-" + d.slice(6);
   return d.slice(0, 3) + "-" + d.slice(3, 7) + "-" + d.slice(7);
 };
+window.normalizePhoneInput = function (v) {
+  return (v || "").replace(/\D/g, "").slice(0, 11);
+};
+window.MOBILE_PREFIXES = ["010", "011", "016", "017", "018", "019"];
+window.validatePhone = function (v) {
+  const d = (v || "").replace(/\D/g, "");
+
+  if (d.length === 0) {
+    return { valid: false, error: "연락처를 입력해 주세요." };
+  }
+  if (d.length < 10 || d.length > 11) {
+    return { valid: false, error: "연락처는 10~11자리 숫자로 입력해 주세요." };
+  }
+
+  const prefix = d.slice(0, 3);
+  if (!window.MOBILE_PREFIXES.includes(prefix)) {
+    return { valid: false, error: "사용할 수 없는 휴대전화 앞자리 번호입니다." };
+  }
+
+  if (prefix === "010" && d.length !== 11) {
+    return { valid: false, error: "010 번호는 11자리로 입력해 주세요." };
+  }
+  if (prefix !== "010" && d.length !== 10) {
+    return { valid: false, error: "연락처는 10~11자리 숫자로 입력해 주세요." };
+  }
+
+  return { valid: true, error: null };
+};
 window.isValidPhone = function (v) {
-  return /^01[016789]\d{7,8}$/.test((v || "").replace(/\D/g, ""));
+  return window.validatePhone(v).valid;
 };
 window.formatSubmittedAt = function (iso) {
   if (!iso) return "";
@@ -220,3 +300,37 @@ function Shell({ children }) {
 }
 
 window.Shell = Shell;
+
+/* ------------------------------------------------------------------ *
+ * 7. 이름·연락처 오입력 안내 — 공모 기간 중 사무실/담당자 수동 확인·수정
+ * ------------------------------------------------------------------ */
+function PhoneCorrectionNotice({ compact = false }) {
+  const { Notice } = window.HarvestDesignSystem_eb006c;
+  const n = window.SNC_CONFIG.phoneCorrectionNotice;
+
+  return (
+    <Notice tone="info" icon="info" title={compact ? undefined : n.title} style={compact ? { padding: "12px 14px" } : undefined}>
+      {compact ? (
+        <>
+          <strong style={{ color: "var(--text-primary)" }}>{n.title}</strong>
+          {" "}
+          {n.body}
+        </>
+      ) : (
+        n.body
+      )}
+      <br /><br />
+      <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>{n.contactLabel}</span>
+      {" · "}
+      {n.contact}
+      {n.isTempContact ? (
+        <>
+          <br />
+          <span style={{ fontSize: 11, color: "var(--text-tertiary)" }}>※ 담당자 연락처는 확정 후 안내 예정입니다.</span>
+        </>
+      ) : null}
+    </Notice>
+  );
+}
+
+window.PhoneCorrectionNotice = PhoneCorrectionNotice;
