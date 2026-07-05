@@ -96,6 +96,11 @@ window.SNC_DB = (function () {
   async function listAll() {
     const sb = getClient();
     if (!sb) return [];
+    const { data: sessionData } = await sb.auth.getSession();
+    if (sessionData.session) {
+      const { error: refreshError } = await sb.auth.refreshSession();
+      if (refreshError) throw refreshError;
+    }
     const { data, error } = await sb
       .from("submissions")
       .select("id, name, phone, affiliation, spaces, submitted_at")

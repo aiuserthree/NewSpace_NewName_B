@@ -127,19 +127,47 @@ function AdminScreen() {
   const [rows, setRows] = React.useState([]);
   const [listError, setListError] = React.useState("");
   const [page, setPage] = React.useState(1);
+  const [refreshBusy, setRefreshBusy] = React.useState(false);
+  const [lastRefreshedAt, setLastRefreshedAt] = React.useState(null);
+  const channelRef = React.useRef(null);
 
   const totalPages = Math.max(1, Math.ceil(rows.length / ADMIN_PAGE_SIZE));
   const pagedRows = rows.slice((page - 1) * ADMIN_PAGE_SIZE, page * ADMIN_PAGE_SIZE);
 
-  const loadRows = React.useCallback(async () => {
-    setListError("");
+  const loadRows = React.useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setListError("");
     try {
       const data = await window.SNC_DB.listAll();
       setRows(data);
+      setLastRefreshedAt(new Date());
+      return data;
     } catch (e) {
-      setListError("목록을 불러오지 못했습니다.");
+      if (!silent) setListError("목록을 불러오지 못했습니다. 다시 로그인 후 새로고침해 주세요.");
+      throw e;
     }
   }, []);
+
+  const attachRealtime = React.useCallback(() => {
+    if (channelRef.current && window.SNC_DB.getClient()) {
+      window.SNC_DB.getClient().removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+    channelRef.current = window.SNC_DB.subscribe(() => {
+      loadRows({ silent: true }).catch(() => {});
+    });
+  }, [loadRows]);
+
+  const onRefresh = async () => {
+    if (refreshBusy) return;
+    setRefreshBusy(true);
+    try {
+      await loadRows();
+    } catch (e) {
+      // loadRows sets listError
+    } finally {
+      setRefreshBusy(false);
+    }
+  };
 
   React.useEffect(() => {
     if (page > totalPages) setPage(totalPages);
@@ -150,7 +178,6 @@ function AdminScreen() {
       setBooting(false);
       return undefined;
     }
-    let channel = null;
     (async () => {
       const session = await window.SNC_DB.getSession();
       if (session) {
@@ -159,17 +186,18 @@ function AdminScreen() {
         setIsAdmin(admin);
         if (admin) {
           await loadRows();
-          channel = window.SNC_DB.subscribe(() => { loadRows(); });
+          attachRealtime();
         }
       }
       setBooting(false);
     })();
     return () => {
-      if (channel && window.SNC_DB.getClient()) {
-        window.SNC_DB.getClient().removeChannel(channel);
+      if (channelRef.current && window.SNC_DB.getClient()) {
+        window.SNC_DB.getClient().removeChannel(channelRef.current);
+        channelRef.current = null;
       }
     };
-  }, [loadRows]);
+  }, [loadRows, attachRealtime]);
 
   const onLogin = async (e) => {
     e.preventDefault();
@@ -187,7 +215,7 @@ function AdminScreen() {
         return;
       }
       await loadRows();
-      window.SNC_DB.subscribe(() => { loadRows(); });
+      attachRealtime();
     } catch (err) {
       setLoginError("로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.");
     } finally {
@@ -246,16 +274,21 @@ function AdminScreen() {
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 20 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <h1 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: 22, fontWeight: 600, color: "var(--text-primary)" }}>신청자 목록</h1>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <Tag tone="wash" icon="users">총 {rows.length}건</Tag>
             <Tag tone="wash" icon="sparkles">실시간 연동</Tag>
+            {lastRefreshedAt ? (
+              <Tag tone="wash" icon="clock">갱신 {window.formatSubmittedAt(lastRefreshedAt.toISOString())}</Tag>
+            ) : null}
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <Button variant="secondary" size="sm" disabled={rows.length === 0} onClick={() => downloadSubmissionsExcel(rows, spaces)}>
             엑셀 다운로드
           </Button>
-          <Button variant="secondary" size="sm" onClick={loadRows}>새로고침</Button>
+          <Button variant="secondary" size="sm" disabled={refreshBusy} onClick={onRefresh}>
+            {refreshBusy ? "새로고침 중…" : "새로고침"}
+          </Button>
           <Button variant="ghost" size="sm" onClick={onLogout}>로그아웃</Button>
         </div>
       </div>
