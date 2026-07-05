@@ -97,7 +97,6 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
               <img src={sp.image} alt={sp.name} style={{ width: 52, height: 52, flex: "0 0 auto", borderRadius: "var(--radius-2xl)", objectFit: "cover" }} />
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <span style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-body)", fontWeight: 600, letterSpacing: "0.015em", color: "var(--text-primary)" }}>{sp.order} {sp.name}</span>
-                <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--text-tertiary)" }}>{sp.tagline}</span>
               </div>
             </div>
           ))}

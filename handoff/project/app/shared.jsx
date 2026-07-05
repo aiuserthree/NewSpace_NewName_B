@@ -43,13 +43,12 @@ window.SNC_CONFIG = {
   },
   voteNotice:
     "제안해 주신 이름 중 상위 후보는 추후 현장 스티커 투표로 최종 결정됩니다.",
-  // ⚠️ 임시 담당자 연락처 — 확정 후 교체
   phoneCorrectionNotice: {
     title: "이름과 연락처를 잘못 입력하셨나요?",
-    body: "신청 내용 확인은 이름과 연락처가 모두 일치해야 합니다. 제출 후에는 웹에서 직접 수정할 수 없으므로, 공모 기간 중 교회 사무실(담당자)로 연락해 주시면 신청 정보를 확인·수정해 드립니다.",
+    body: "신청 내용 확인은 이름과 연락처가 모두 일치해야 합니다. 제출 후에는 웹에서 직접 수정할 수 없으므로, 공모 기간 중 최에스겔 목사(010-8255-6308) 에게 연락해 주시면 신청 정보를 확인·수정해 드립니다.",
     contactLabel: "문의",
-    contact: "교회 사무실 (연락처 확정 후 안내)",
-    isTempContact: true,
+    contact: "최에스겔 목사(010-8255-6308)",
+    isTempContact: false,
   },
   checkEntryGuide:
     "공모 참여 시 입력한 이름과 연락처가 모두 일치해야 신청 내용을 확인할 수 있어요.",
@@ -88,6 +87,12 @@ window.CONTEST_SPACES = [
     icon: "users",
   },
 ];
+
+window.getSpaceImages = function getSpaceImages(space) {
+  if (!space) return [];
+  if (Array.isArray(space.images) && space.images.length > 0) return space.images;
+  return space.image ? [space.image] : [];
+};
 
 window.SNC_INPUT = {
   requiredPlaceholder: "떠오르는 이름을 적어주세요",
