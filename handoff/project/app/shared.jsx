@@ -104,6 +104,7 @@ window.SNC_PAGES = {
   complete: "P3-complete.html",
   lookup: "P4-lookup.html",
   check: "P5-check.html",
+  admin: "P6-admin.html",
 };
 window.goPage = function (key, params) {
   const base = window.SNC_PAGES[key] || key;
@@ -112,13 +113,14 @@ window.goPage = function (key, params) {
 };
 
 /* ------------------------------------------------------------------ *
- * 4. 저장소 (localStorage) — 이름 + 연락처 조합을 고유 키로 사용
- *    데모(김은혜 + 010-0000-0000)는 항상 "기존 신청자"로 판별되도록 시드.
+ * 4. 저장소 — Supabase(원격) + localStorage(세션/폴백)
+ *    고유 키: 이름 + 연락처 조합
  * ------------------------------------------------------------------ */
 window.SNC = (function () {
   const SUB_KEY = "snc.submissions.v2";
   const CUR_KEY = "snc.current.v1";
   const LAST_KEY = "snc.lastKey.v2";
+  const LAST_REC_KEY = "snc.lastRecord.v1";
   const DEMO_PHONE = "01000000000";
   const DEMO_NAME = "김은혜";
   const DEMO_RECORD = {
@@ -144,6 +146,8 @@ window.SNC = (function () {
   const digits = (v) => (v || "").replace(/\D/g, "");
   const normalizeName = (v) => (v || "").trim().replace(/\s+/g, " ");
   const makeKey = (name, phone) => `${normalizeName(name)}|${digits(phone)}`;
+  const useRemote = () => window.SNC_DB && window.SNC_DB.isConfigured();
+
   function readMap() {
     const m = parse(localStorage.getItem(SUB_KEY), {});
     const demoKey = makeKey(DEMO_NAME, DEMO_PHONE);
@@ -153,6 +157,13 @@ window.SNC = (function () {
     }
     return m;
   }
+
+  function findLocal(name, phone) {
+    const key = makeKey(name, phone);
+    if (!key || key === "|") return null;
+    return readMap()[key] || null;
+  }
+
   return {
     DEMO_PHONE,
     DEMO_NAME,
@@ -160,16 +171,31 @@ window.SNC = (function () {
     digits,
     normalizeName,
     makeKey,
+    useRemote,
     lookupParams(name, phone) {
       return { name: normalizeName(name), phone: digits(phone) };
     },
-    find(name, phone) {
-      const key = makeKey(name, phone);
-      if (!key || key === "|") return null;
-      return readMap()[key] || null;
+    async find(name, phone) {
+      if (useRemote()) {
+        try {
+          return await window.SNC_DB.find(name, phone);
+        } catch (e) {
+          console.error("[SNC] find remote failed", e);
+          throw e;
+        }
+      }
+      return findLocal(name, phone);
     },
-    exists(name, phone) {
-      return !!this.find(name, phone);
+    async exists(name, phone) {
+      if (useRemote()) {
+        try {
+          return await window.SNC_DB.exists(name, phone);
+        } catch (e) {
+          console.error("[SNC] exists remote failed", e);
+          throw e;
+        }
+      }
+      return !!findLocal(name, phone);
     },
     saveCurrent(obj) {
       try { localStorage.setItem(CUR_KEY, JSON.stringify(obj)); } catch (e) {}
@@ -177,24 +203,35 @@ window.SNC = (function () {
     readCurrent() {
       return parse(localStorage.getItem(CUR_KEY), null);
     },
-    saveSubmission(rec) {
-      const key = makeKey(rec.name, rec.phone);
-      const m = readMap();
-      m[key] = Object.assign({}, rec, {
+    async saveSubmission(rec) {
+      const normalized = {
         name: normalizeName(rec.name),
         phone: digits(rec.phone),
-        submittedAt: new Date().toISOString(),
-      });
+        affiliation: (rec.affiliation || "").trim(),
+        spaces: rec.spaces || {},
+      };
+      let saved;
+      if (useRemote()) {
+        saved = await window.SNC_DB.saveSubmission(normalized);
+      } else {
+        const key = makeKey(normalized.name, normalized.phone);
+        const m = readMap();
+        saved = Object.assign({}, normalized, { submittedAt: new Date().toISOString() });
+        m[key] = saved;
+        try { localStorage.setItem(SUB_KEY, JSON.stringify(m)); } catch (e) {}
+      }
       try {
-        localStorage.setItem(SUB_KEY, JSON.stringify(m));
-        localStorage.setItem(LAST_KEY, key);
+        localStorage.setItem(LAST_KEY, makeKey(saved.name, saved.phone));
+        localStorage.setItem(LAST_REC_KEY, JSON.stringify(saved));
       } catch (e) {}
-      return key;
+      return saved;
     },
     lastKey() {
       return localStorage.getItem(LAST_KEY) || "";
     },
     lastRecord() {
+      const cached = parse(localStorage.getItem(LAST_REC_KEY), null);
+      if (cached) return cached;
       const key = this.lastKey();
       return key ? readMap()[key] || null : null;
     },

@@ -1,6 +1,5 @@
 /* LookupScreen.jsx — P4 내 제출 내용 조회 (읽기 전용).
-   ?name=&phone= 파라미터 → 저장 데이터 조회.
-   파라미터는 있으나 데이터 없음 → "조회할 내용이 없습니다" (시나리오 P4-S2). */
+   ?name=&phone= 파라미터 → Supabase/local 저장 데이터 조회. */
 
 function LookupScreen() {
   const { Button, Icon, Notice } = window.HarvestDesignSystem_eb006c;
@@ -10,15 +9,37 @@ function LookupScreen() {
   const nameParam = params.get("name");
   const phoneParam = params.get("phone");
   const hasParams = Boolean(nameParam && phoneParam);
-  let rec = null;
-  let notFound = false;
 
-  if (hasParams) {
-    rec = window.SNC.find(nameParam, phoneParam);
-    if (!rec) notFound = true;
-  }
+  const [loading, setLoading] = React.useState(hasParams);
+  const [rec, setRec] = React.useState(null);
+  const [notFound, setNotFound] = React.useState(false);
+  const [loadError, setLoadError] = React.useState("");
 
-  /* 이름·연락처 없이 접근 — 확인 페이지로 안내 */
+  React.useEffect(() => {
+    if (!hasParams) return undefined;
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setLoadError("");
+      try {
+        const data = await window.SNC.find(nameParam, phoneParam);
+        if (cancelled) return;
+        if (!data) {
+          setNotFound(true);
+          setRec(null);
+        } else {
+          setRec(data);
+          setNotFound(false);
+        }
+      } catch (e) {
+        if (!cancelled) setLoadError("조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [hasParams, nameParam, phoneParam]);
+
   if (!hasParams) {
     return (
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", padding: "40px 30px", gap: 20 }}>
@@ -41,7 +62,23 @@ function LookupScreen() {
     );
   }
 
-  /* 조회 데이터 없음 */
+  if (loading) {
+    return (
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 40, fontFamily: "var(--font-sans)", color: "var(--text-secondary)" }}>
+        조회 중…
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", padding: "40px 30px", gap: 20 }}>
+        <Notice tone="accent" icon="info">{loadError}</Notice>
+        <Button variant="secondary" size="md" fullWidth leftIcon="check-check" onClick={() => window.goPage("check")}>다시 조회하기</Button>
+      </div>
+    );
+  }
+
   if (notFound || !rec) {
     return (
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", padding: "40px 30px", gap: 20 }}>
@@ -79,7 +116,6 @@ function LookupScreen() {
           </p>
         </div>
 
-        {/* 신청자 요약 */}
         <div style={{ background: "var(--surface-card)", borderRadius: "var(--radius-2xl)", padding: "14px 18px", boxShadow: "var(--shadow-sm)", display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ display: "flex", gap: 18 }}>
             <SummaryItem icon="user" label="이름" value={rec.name} />

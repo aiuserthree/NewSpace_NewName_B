@@ -1,0 +1,114 @@
+-- 공간 이름 공모전 · Supabase 스키마
+-- Supabase Dashboard → SQL Editor 에서 실행하세요.
+
+-- ------------------------------------------------------------------
+-- 1. 신청 테이블
+-- ------------------------------------------------------------------
+create table if not exists public.submissions (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  phone text not null,
+  affiliation text not null default '',
+  spaces jsonb not null default '{}'::jsonb,
+  submitted_at timestamptz not null default now(),
+  name_key text generated always as (trim(regexp_replace(name, '\s+', ' ', 'g'))) stored,
+  phone_key text generated always as (regexp_replace(phone, '\D', '', 'g')) stored,
+  constraint submissions_name_phone_unique unique (name_key, phone_key)
+);
+
+create index if not exists submissions_submitted_at_idx
+  on public.submissions (submitted_at desc);
+
+alter table public.submissions enable row level security;
+
+-- 익명(사용자) INSERT만 허용 — SELECT는 RPC로 제한
+drop policy if exists "anon insert submissions" on public.submissions;
+create policy "anon insert submissions"
+  on public.submissions for insert
+  to anon, authenticated
+  with check (true);
+
+-- ------------------------------------------------------------------
+-- 2. 관리자 프로필 (Supabase Auth 사용자 UUID 등록)
+-- ------------------------------------------------------------------
+create table if not exists public.admin_profiles (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+alter table public.admin_profiles enable row level security;
+
+drop policy if exists "admin read own profile" on public.admin_profiles;
+create policy "admin read own profile"
+  on public.admin_profiles for select
+  to authenticated
+  using (auth.uid() = user_id);
+
+drop policy if exists "admin select submissions" on public.submissions;
+create policy "admin select submissions"
+  on public.submissions for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.admin_profiles ap
+      where ap.user_id = auth.uid()
+    )
+  );
+
+-- ------------------------------------------------------------------
+-- 3. 사용자 조회/중복확인 RPC (이름+연락처 일치 시에만)
+-- ------------------------------------------------------------------
+create or replace function public.lookup_submission(p_name text, p_phone text)
+returns json
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  result json;
+begin
+  select json_build_object(
+    'id', s.id,
+    'name', s.name,
+    'phone', s.phone,
+    'affiliation', s.affiliation,
+    'spaces', s.spaces,
+    'submitted_at', s.submitted_at
+  )
+  into result
+  from public.submissions s
+  where s.name_key = trim(regexp_replace(p_name, '\s+', ' ', 'g'))
+    and s.phone_key = regexp_replace(p_phone, '\D', '', 'g')
+  limit 1;
+
+  return result;
+end;
+$$;
+
+create or replace function public.submission_exists(p_name text, p_phone text)
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.submissions s
+    where s.name_key = trim(regexp_replace(p_name, '\s+', ' ', 'g'))
+      and s.phone_key = regexp_replace(p_phone, '\D', '', 'g')
+  );
+$$;
+
+grant execute on function public.lookup_submission(text, text) to anon, authenticated;
+grant execute on function public.submission_exists(text, text) to anon, authenticated;
+
+-- ------------------------------------------------------------------
+-- 4. Realtime (관리자 실시간 목록)
+-- ------------------------------------------------------------------
+alter publication supabase_realtime add table public.submissions;
+
+-- ------------------------------------------------------------------
+-- 5. 관리자 계정 등록 (Auth에서 사용자 생성 후 실행)
+--    insert into public.admin_profiles (user_id)
+--    values ('YOUR-AUTH-USER-UUID');
+-- ------------------------------------------------------------------

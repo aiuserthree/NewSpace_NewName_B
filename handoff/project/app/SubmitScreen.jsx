@@ -15,11 +15,14 @@ function SubmitScreen({ layout = "카드" }) {
     return init;
   });
   const [errors, setErrors] = React.useState({});
+  const [busy, setBusy] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState("");
 
   const filledRequired = spaces.filter((s) => names[s.id].required.trim().length > 0).length;
   const canSubmit = filledRequired === spaces.length;
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    setSubmitError("");
     const errs = {};
     spaces.forEach((s) => {
       if (names[s.id].required.trim().length === 0) errs[s.id] = { required: "필수 이름을 입력해 주세요." };
@@ -28,14 +31,29 @@ function SubmitScreen({ layout = "카드" }) {
       setErrors(errs);
       return;
     }
-    // 제출 직전 중복 재확인 (동시 제출 방지 — 시나리오 P2-S3)
-    if (current.name && current.phone && window.SNC.exists(current.name, current.phone)) {
-      window.goPage("lookup", window.SNC.lookupParams(current.name, current.phone));
-      return;
+    setBusy(true);
+    try {
+      if (current.name && current.phone && await window.SNC.exists(current.name, current.phone)) {
+        window.goPage("lookup", window.SNC.lookupParams(current.name, current.phone));
+        return;
+      }
+      const record = {
+        name: applicantName,
+        affiliation: current.affiliation || "",
+        phone: window.SNC.digits(current.phone || ""),
+        spaces: names,
+      };
+      if (current.phone) await window.SNC.saveSubmission(record);
+      window.goPage("complete");
+    } catch (e) {
+      if (e && e.code === "DUPLICATE") {
+        window.goPage("lookup", window.SNC.lookupParams(current.name, current.phone));
+        return;
+      }
+      setSubmitError("제출 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setBusy(false);
     }
-    const record = { name: applicantName, affiliation: current.affiliation || "", phone: window.SNC.digits(current.phone || ""), spaces: names };
-    if (current.phone) window.SNC.saveSubmission(record);
-    window.goPage("complete");
   };
 
   return (
@@ -71,12 +89,15 @@ function SubmitScreen({ layout = "카드" }) {
       </div>
 
       <div style={{ padding: "10px 26px 34px", position: "sticky", bottom: 0, background: "linear-gradient(to top, var(--surface-page) 74%, rgba(255,248,241,0))" }}>
+        {submitError ? (
+          <p style={{ margin: "0 0 12px", fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--accent)", textAlign: "center" }}>{submitError}</p>
+        ) : null}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 12, fontFamily: "var(--font-sans)", fontSize: 12, letterSpacing: "0.015em", color: canSubmit ? "var(--accent)" : "var(--text-tertiary)" }}>
           <Icon name={canSubmit ? "circle-check" : "info"} size={14} />
           필수 {filledRequired} / {spaces.length} 공간 작성됨
         </div>
-        <Button variant="primary" size="lg" fullWidth disabled={!canSubmit} onClick={onSubmit}>
-          제출하기
+        <Button variant="primary" size="lg" fullWidth disabled={!canSubmit || busy} onClick={onSubmit}>
+          {busy ? "제출 중…" : "제출하기"}
         </Button>
       </div>
     </div>

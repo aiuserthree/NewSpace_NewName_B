@@ -14,7 +14,7 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
   const subtitle = "새로 짓고 단장하는 세 공간의 이름을 교인 여러분의 마음으로 제안해 주세요.";
 
   const steps = [
-    { icon: "user", text: "이름과 연락처를 입력해요" },
+    { icon: "user", text: "이름·소속·연락처를 입력해요" },
     { icon: "pencil", text: "세 공간의 이름을 제안해요" },
     { icon: "vote", text: "상위 후보는 현장 투표로 결정돼요" },
   ];

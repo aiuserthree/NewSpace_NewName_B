@@ -203,6 +203,8 @@ function InfoScreen() {
   const [showTerms, setShowTerms] = React.useState(false);
   const [errors, setErrors] = React.useState({});
   const [duplicate, setDuplicate] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [remoteError, setRemoteError] = React.useState("");
 
   const phoneDigits = window.SNC.digits(phone);
 
@@ -247,18 +249,27 @@ function InfoScreen() {
     }
   };
 
-  const onNext = () => {
+  const onNext = async () => {
+    setRemoteError("");
     const next = buildErrors();
     if (Object.keys(next).length) {
       setErrors(next);
       return;
     }
-    if (window.SNC.exists(name.trim(), phone)) {
-      setDuplicate(true);
-      return;
+    setBusy(true);
+    try {
+      const dup = await window.SNC.exists(name.trim(), phone);
+      if (dup) {
+        setDuplicate(true);
+        return;
+      }
+      window.SNC.saveCurrent({ name: name.trim(), affiliation: affiliation.trim(), phone: phoneDigits });
+      window.goPage("submit");
+    } catch (e) {
+      setRemoteError("신청 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setBusy(false);
     }
-    window.SNC.saveCurrent({ name: name.trim(), affiliation: affiliation.trim(), phone: phoneDigits });
-    window.goPage("submit");
   };
 
   const openLookup = () => window.goPage("lookup", window.SNC.lookupParams(name, phone));
@@ -305,6 +316,10 @@ function InfoScreen() {
           </Notice>
         ) : null}
 
+        {remoteError ? (
+          <Notice tone="accent" icon="info">{remoteError}</Notice>
+        ) : null}
+
         <ConsentField
           checked={consent}
           onChange={onConsent}
@@ -313,8 +328,8 @@ function InfoScreen() {
         />
 
         <div style={{ marginTop: "auto", paddingTop: 8 }}>
-          <Button variant="primary" size="lg" fullWidth rightIcon="arrow-right" onClick={onNext}>
-            다음
+          <Button variant="primary" size="lg" fullWidth rightIcon="arrow-right" disabled={busy} onClick={onNext}>
+            {busy ? "확인 중…" : "다음"}
           </Button>
         </div>
       </div>
