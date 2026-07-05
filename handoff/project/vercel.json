@@ -1,6 +1,7 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/P0-intro.html" }
+    { "source": "/", "destination": "/P0-intro.html" },
+    { "source": "/favicon.ico", "destination": "/favicon.svg" }
   ],
   "headers": [
     {
