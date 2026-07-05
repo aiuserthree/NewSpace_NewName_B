@@ -12,19 +12,105 @@ function AdminShell({ children }) {
           {window.SNC_CONFIG.title} · 관리자
         </span>
       </header>
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 20px 40px" }}>{children}</main>
+      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 20px 40px" }}>{children}</main>
     </div>
   );
 }
 
-function spaceSummary(spaces) {
-  if (!spaces) return "-";
-  return window.CONTEST_SPACES.map((sp) => {
-    const v = spaces[sp.id];
-    if (!v) return null;
-    const parts = [v.required, v.optional].filter(Boolean).join(" / ");
-    return `${sp.name}: ${parts}`;
-  }).filter(Boolean).join(" · ");
+const ADMIN_PAGE_SIZE = 10;
+
+function downloadSubmissionsExcel(rows, spaces) {
+  const headers = [
+    "제출일시",
+    "이름",
+    "연락처",
+    "소속",
+    ...spaces.flatMap((sp) => [`${sp.name}(필수)`, `${sp.name}(선택)`]),
+  ];
+
+  const data = rows.map((row) => {
+    const v = row.spaces || {};
+    return [
+      window.formatSubmittedAt(row.submittedAt),
+      row.name,
+      window.formatPhone(row.phone),
+      row.affiliation || "",
+      ...spaces.flatMap((sp) => {
+        const sv = v[sp.id] || {};
+        return [(sv.required || "").trim(), (sv.optional || "").trim()];
+      }),
+    ];
+  });
+
+  const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const filename = `신청자목록_${stamp}.xlsx`;
+
+  if (window.XLSX) {
+    const ws = window.XLSX.utils.aoa_to_sheet([headers, ...data]);
+    const wb = window.XLSX.utils.book_new();
+    window.XLSX.utils.book_append_sheet(wb, ws, "신청자목록");
+    window.XLSX.writeFile(wb, filename);
+    return;
+  }
+
+  const escape = (val) => {
+    const s = String(val ?? "");
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [headers.join(","), ...data.map((line) => line.map(escape).join(","))];
+  const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename.replace(".xlsx", ".csv");
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function AdminPagination({ page, totalPages, totalCount, onPageChange }) {
+  const { Button } = window.HarvestDesignSystem_eb006c;
+  const start = totalCount === 0 ? 0 : (page - 1) * ADMIN_PAGE_SIZE + 1;
+  const end = Math.min(page * ADMIN_PAGE_SIZE, totalCount);
+
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 16px", borderTop: "1px solid var(--border-divider)", fontFamily: "var(--font-sans)", fontSize: 14 }}>
+      <span style={{ color: "var(--text-secondary)" }}>
+        총 {totalCount}건 · {start}–{end}건 표시
+      </span>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
+          이전
+        </Button>
+        <span style={{ color: "var(--text-secondary)", minWidth: 64, textAlign: "center" }}>
+          {page} / {totalPages}
+        </span>
+        <Button variant="secondary" size="sm" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>
+          다음
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function SpaceNamesCell({ values }) {
+  const v = values || {};
+  const required = (v.required || "").trim();
+  const optional = (v.optional || "").trim();
+
+  return (
+    <td style={{ padding: "12px 14px", verticalAlign: "top", minWidth: 130 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-tertiary)" }}>필수</span>
+          <span style={{ color: "var(--text-primary)", lineHeight: 1.45, wordBreak: "break-word" }}>{required || "-"}</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-tertiary)" }}>선택</span>
+          <span style={{ color: optional ? "var(--text-secondary)" : "var(--text-tertiary)", lineHeight: 1.45, wordBreak: "break-word" }}>{optional || "-"}</span>
+        </div>
+      </div>
+    </td>
+  );
 }
 
 function AdminScreen() {
@@ -40,7 +126,10 @@ function AdminScreen() {
   const [loginBusy, setLoginBusy] = React.useState(false);
   const [rows, setRows] = React.useState([]);
   const [listError, setListError] = React.useState("");
-  const [expanded, setExpanded] = React.useState(null);
+  const [page, setPage] = React.useState(1);
+
+  const totalPages = Math.max(1, Math.ceil(rows.length / ADMIN_PAGE_SIZE));
+  const pagedRows = rows.slice((page - 1) * ADMIN_PAGE_SIZE, page * ADMIN_PAGE_SIZE);
 
   const loadRows = React.useCallback(async () => {
     setListError("");
@@ -51,6 +140,10 @@ function AdminScreen() {
       setListError("목록을 불러오지 못했습니다.");
     }
   }, []);
+
+  React.useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   React.useEffect(() => {
     if (!window.SNC_DB.isConfigured()) {
@@ -107,6 +200,7 @@ function AdminScreen() {
     setAuthed(false);
     setIsAdmin(false);
     setRows([]);
+    setPage(1);
   };
 
   if (booting) {
@@ -161,6 +255,9 @@ function AdminScreen() {
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
+          <Button variant="secondary" size="sm" disabled={rows.length === 0} onClick={() => downloadSubmissionsExcel(rows, spaces)}>
+            엑셀 다운로드
+          </Button>
           <Button variant="secondary" size="sm" onClick={loadRows}>새로고침</Button>
           <Button variant="ghost" size="sm" onClick={onLogout}>로그아웃</Button>
         </div>
@@ -172,52 +269,39 @@ function AdminScreen() {
         <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--font-sans)", fontSize: 14 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--border-divider)", textAlign: "left" }}>
-              <th style={{ padding: "12px 14px", color: "var(--text-tertiary)", fontWeight: 600 }}>제출일시</th>
-              <th style={{ padding: "12px 14px", color: "var(--text-tertiary)", fontWeight: 600 }}>이름</th>
-              <th style={{ padding: "12px 14px", color: "var(--text-tertiary)", fontWeight: 600 }}>연락처</th>
-              <th style={{ padding: "12px 14px", color: "var(--text-tertiary)", fontWeight: 600 }}>소속</th>
-              <th style={{ padding: "12px 14px", color: "var(--text-tertiary)", fontWeight: 600 }}>제안 요약</th>
+              <th style={{ padding: "12px 14px", color: "var(--text-tertiary)", fontWeight: 600, whiteSpace: "nowrap" }}>제출일시</th>
+              <th style={{ padding: "12px 14px", color: "var(--text-tertiary)", fontWeight: 600, whiteSpace: "nowrap" }}>이름</th>
+              <th style={{ padding: "12px 14px", color: "var(--text-tertiary)", fontWeight: 600, whiteSpace: "nowrap" }}>연락처</th>
+              <th style={{ padding: "12px 14px", color: "var(--text-tertiary)", fontWeight: 600, whiteSpace: "nowrap" }}>소속</th>
+              {spaces.map((sp) => (
+                <th key={sp.id} style={{ padding: "12px 14px", color: "var(--text-tertiary)", fontWeight: 600, minWidth: 130 }}>
+                  {sp.name}
+                  <span style={{ display: "block", fontSize: 10, fontWeight: 500, color: "var(--text-tertiary)", marginTop: 2 }}>필수 · 선택</span>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ padding: 24, textAlign: "center", color: "var(--text-secondary)" }}>아직 신청 내역이 없습니다.</td>
+                <td colSpan={4 + spaces.length} style={{ padding: 24, textAlign: "center", color: "var(--text-secondary)" }}>아직 신청 내역이 없습니다.</td>
               </tr>
-            ) : rows.map((row) => (
-              <React.Fragment key={row.id || `${row.name}-${row.phone}`}>
-                <tr
-                  style={{ borderBottom: "1px solid var(--border-divider)", cursor: "pointer", background: expanded === row.id ? "var(--surface-wash)" : "transparent" }}
-                  onClick={() => setExpanded(expanded === row.id ? null : row.id)}
-                >
-                  <td style={{ padding: "12px 14px", whiteSpace: "nowrap" }}>{window.formatSubmittedAt(row.submittedAt)}</td>
-                  <td style={{ padding: "12px 14px" }}>{row.name}</td>
-                  <td style={{ padding: "12px 14px", whiteSpace: "nowrap" }}>{window.formatPhone(row.phone)}</td>
-                  <td style={{ padding: "12px 14px" }}>{row.affiliation || "-"}</td>
-                  <td style={{ padding: "12px 14px", color: "var(--text-secondary)", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{spaceSummary(row.spaces)}</td>
-                </tr>
-                {expanded === row.id ? (
-                  <tr>
-                    <td colSpan={5} style={{ padding: "12px 14px 18px", background: "var(--surface-wash)" }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-                        {spaces.map((sp) => {
-                          const v = row.spaces && row.spaces[sp.id];
-                          return (
-                            <div key={sp.id} style={{ background: "var(--surface-card)", borderRadius: "var(--radius-xl)", padding: "12px 14px" }}>
-                              <div style={{ fontWeight: 600, marginBottom: 6, color: "var(--text-primary)" }}>{sp.order} {sp.name}</div>
-                              <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>필수: {v && v.required ? v.required : "-"}</div>
-                              <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>선택: {v && v.optional ? v.optional : "-"}</div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </td>
-                  </tr>
-                ) : null}
-              </React.Fragment>
+            ) : pagedRows.map((row) => (
+              <tr key={row.id || `${row.name}-${row.phone}`} style={{ borderBottom: "1px solid var(--border-divider)" }}>
+                <td style={{ padding: "12px 14px", whiteSpace: "nowrap", verticalAlign: "top" }}>{window.formatSubmittedAt(row.submittedAt)}</td>
+                <td style={{ padding: "12px 14px", verticalAlign: "top" }}>{row.name}</td>
+                <td style={{ padding: "12px 14px", whiteSpace: "nowrap", verticalAlign: "top" }}>{window.formatPhone(row.phone)}</td>
+                <td style={{ padding: "12px 14px", verticalAlign: "top" }}>{row.affiliation || "-"}</td>
+                {spaces.map((sp) => (
+                  <SpaceNamesCell key={sp.id} values={row.spaces && row.spaces[sp.id]} />
+                ))}
+              </tr>
             ))}
           </tbody>
         </table>
+        {rows.length > 0 ? (
+          <AdminPagination page={page} totalPages={totalPages} totalCount={rows.length} onPageChange={setPage} />
+        ) : null}
       </div>
     </AdminShell>
   );
