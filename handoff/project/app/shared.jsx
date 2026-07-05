@@ -14,7 +14,7 @@ window.SNC_CONFIG = {
   // ⚠️ 임시 개인정보 안내 문구 — 확정 후 교체 (열린 이슈 #5)
   privacyNotice:
     "입력하신 이름, 연락처, 소속(선택)은 공모 진행과 중복 확인을 위해서만 사용되며, 공모 종료 후 안전하게 파기됩니다.",
-  isTempPrivacy: true,
+  isTempPrivacy: false,
   privacyTerms: {
     title: "개인정보 수집·이용 동의",
     updatedAt: "2026년 7월 5일",
@@ -37,7 +37,7 @@ window.SNC_CONFIG = {
       },
       {
         heading: "5. 문의",
-        body: "개인정보 처리와 관련한 문의는 교회 사무실로 연락해 주세요.",
+        body: "개인정보 처리와 관련한 문의는 최에스겔 목사(010-8255-6308) 에게 연락해 주세요.",
       },
     ],
   },
