@@ -93,19 +93,32 @@ window.SNC_DB = (function () {
     return mapRow(data);
   }
 
+  function isAuthError(error) {
+    if (!error) return false;
+    const msg = String(error.message || "").toLowerCase();
+    return error.status === 401
+      || (error.status === 400 && msg.includes("refresh token"))
+      || error.name === "AuthApiError"
+      || msg.includes("jwt")
+      || error.code === "PGRST301";
+  }
+
   async function listAll() {
     const sb = getClient();
     if (!sb) return [];
-    const { data: sessionData } = await sb.auth.getSession();
-    if (sessionData.session) {
-      const { error: refreshError } = await sb.auth.refreshSession();
-      if (refreshError) throw refreshError;
-    }
     const { data, error } = await sb
       .from("submissions")
       .select("id, name, phone, affiliation, spaces, submitted_at")
       .order("submitted_at", { ascending: false });
-    if (error) throw error;
+    if (error) {
+      if (isAuthError(error)) {
+        await signOut();
+        const err = new Error("SESSION_EXPIRED");
+        err.code = "SESSION_EXPIRED";
+        throw err;
+      }
+      throw error;
+    }
     return (data || []).map(mapRow);
   }
 
@@ -140,6 +153,11 @@ window.SNC_DB = (function () {
   async function getSession() {
     const sb = getClient();
     if (!sb) return null;
+    const { data: userData, error: userError } = await sb.auth.getUser();
+    if (userError || !userData.user) {
+      if (userError && isAuthError(userError)) await signOut();
+      return null;
+    }
     const { data } = await sb.auth.getSession();
     return data.session;
   }

@@ -134,6 +134,19 @@ function AdminScreen() {
   const totalPages = Math.max(1, Math.ceil(rows.length / ADMIN_PAGE_SIZE));
   const pagedRows = rows.slice((page - 1) * ADMIN_PAGE_SIZE, page * ADMIN_PAGE_SIZE);
 
+  const handleSessionExpired = React.useCallback(async () => {
+    await window.SNC_DB.signOut();
+    setAuthed(false);
+    setIsAdmin(false);
+    setRows([]);
+    setPage(1);
+    setLastRefreshedAt(null);
+    if (channelRef.current && window.SNC_DB.getClient()) {
+      window.SNC_DB.getClient().removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+  }, []);
+
   const loadRows = React.useCallback(async ({ silent = false } = {}) => {
     if (!silent) setListError("");
     try {
@@ -142,10 +155,15 @@ function AdminScreen() {
       setLastRefreshedAt(new Date());
       return data;
     } catch (e) {
+      if (e && e.code === "SESSION_EXPIRED") {
+        await handleSessionExpired();
+        if (!silent) setListError("로그인이 만료되었습니다. 다시 로그인해 주세요.");
+        return [];
+      }
       if (!silent) setListError("목록을 불러오지 못했습니다. 다시 로그인 후 새로고침해 주세요.");
       throw e;
     }
-  }, []);
+  }, [handleSessionExpired]);
 
   const attachRealtime = React.useCallback(() => {
     if (channelRef.current && window.SNC_DB.getClient()) {
@@ -185,8 +203,12 @@ function AdminScreen() {
         const admin = await window.SNC_DB.isAdmin();
         setIsAdmin(admin);
         if (admin) {
-          await loadRows();
-          attachRealtime();
+          try {
+            await loadRows();
+            attachRealtime();
+          } catch (e) {
+            // loadRows handles session expiry
+          }
         }
       }
       setBooting(false);
