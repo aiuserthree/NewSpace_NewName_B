@@ -1,0 +1,44 @@
+/* ============================================================
+   SPACING, LAYOUT & RADII
+   Density: comfortable. Two signature radii — 16px (buttons/inputs/images)
+   and 20px (cards) — plus 999px pills.
+   ============================================================ */
+
+:root {
+  /* Spacing scale (px values sampled from the source) */
+  --spacing-4: 4px;
+  --spacing-5: 5px;
+  --spacing-7: 7px;
+  --spacing-10: 10px;
+  --spacing-14: 14px;
+  --spacing-15: 15px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-22: 22px;
+  --spacing-25: 25px;
+  --spacing-30: 30px;
+  --spacing-35: 35px;
+  --spacing-40: 40px;
+  --spacing-50: 50px;
+  --spacing-100: 100px;
+  --spacing-113: 113px;
+
+  /* Layout (source specifies ranges; concrete midpoints below) */
+  --page-max-width: 1200px;
+  --section-gap: 72px;      /* range 64–80 */
+  --card-padding: 36px;     /* range 32–40 */
+  --element-gap: 20px;      /* range 16–24 */
+  --page-gutter: 24px;
+
+  /* Border radius */
+  --radius-2xl: 16px;
+  --radius-2xl-2: 20px;
+  --radius-full: 999px;
+
+  /* Named radii (by element) */
+  --radius-buttons: 16px;
+  --radius-inputs: 16px;
+  --radius-images: 16px;
+  --radius-cards: 20px;
+  --radius-tags: 999px;
+}

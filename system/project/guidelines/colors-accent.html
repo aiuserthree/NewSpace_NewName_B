@@ -1,0 +1,36 @@
+<!-- @dsCard group="Colors" viewport="700x210" name="Accent — Harvest Flame" subtitle="The single chromatic decision: hover −10%, active −18%" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 26px 28px; }
+  .row { display: flex; gap: 14px; align-items: stretch; }
+  .chip { flex: 1 1 0; display: flex; flex-direction: column; gap: 10px; }
+  .sw { height: 96px; border-radius: var(--radius-cards); box-shadow: var(--shadow-sm); }
+  .meta { display: flex; flex-direction: column; gap: 2px; }
+  .meta b { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .meta .hex { font-size: 13px; color: var(--text-secondary); }
+  .meta code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; color: var(--text-tertiary); }
+  .big { flex: 2 1 0; }
+  .big .sw { height: 96px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="chip big">
+      <div class="sw" style="background: var(--color-harvest-flame);"></div>
+      <div class="meta"><b>Harvest Flame</b><span class="hex">#fa5d00</span><code>--accent</code></div>
+    </div>
+    <div class="chip">
+      <div class="sw" style="background: var(--color-flame-hover);"></div>
+      <div class="meta"><b>Hover</b><span class="hex">#e15400</span><code>--accent-hover</code></div>
+    </div>
+    <div class="chip">
+      <div class="sw" style="background: var(--color-flame-active);"></div>
+      <div class="meta"><b>Active</b><span class="hex">#cd4c00</span><code>--accent-active</code></div>
+    </div>
+  </div>
+</body>
+</html>

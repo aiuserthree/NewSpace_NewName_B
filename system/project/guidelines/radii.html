@@ -1,0 +1,25 @@
+<!-- @dsCard group="Spacing" viewport="700x210" name="Radii" subtitle="Two signature radii — 16px & 20px — plus 999px pills" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 26px 30px; }
+  .row { display: flex; gap: 20px; align-items: flex-end; }
+  .chip { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .box { width: 110px; height: 96px; background: var(--surface-card); box-shadow: var(--shadow-lg); }
+  .pill { width: 130px; height: 44px; background: var(--accent); }
+  .meta { text-align: center; }
+  .meta b { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .meta code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="chip"><div class="box" style="border-radius: var(--radius-2xl);"></div><div class="meta"><b>16px</b><code>buttons · inputs · images</code></div></div>
+    <div class="chip"><div class="box" style="border-radius: var(--radius-cards);"></div><div class="meta"><b>20px</b><code>cards</code></div></div>
+    <div class="chip"><div class="pill" style="border-radius: var(--radius-full);"></div><div class="meta"><b>999px</b><code>tags · pills</code></div></div>
+  </div>
+</body>
+</html>

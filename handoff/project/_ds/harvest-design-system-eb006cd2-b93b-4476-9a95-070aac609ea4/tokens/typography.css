@@ -1,0 +1,52 @@
+/* ============================================================
+   TYPOGRAPHY — type scale (size / line-height / letter-spacing)
+   Family + weight tokens live in fonts.css.
+   All sans text carries +0.015em tracking (the friendly, tracked-wide feel).
+   ============================================================ */
+
+:root {
+  /* caption / label */
+  --text-caption: 13px;
+  --leading-caption: 1.35;
+  --tracking-caption: 0.2px;
+
+  /* body */
+  --text-body: 16px;
+  --leading-body: 1.5;
+  --tracking-body: 0.015em;
+
+  /* subheading */
+  --text-subheading: 18px;
+  --leading-subheading: 1.4;
+  --tracking-subheading: 0.27px;
+
+  /* heading-sm */
+  --text-heading-sm: 20px;
+  --leading-heading-sm: 1.3;
+  --tracking-heading-sm: 0.3px;
+
+  /* heading */
+  --text-heading: 24px;
+  --leading-heading: 1.26;
+  --tracking-heading: 0.36px;
+
+  /* heading-lg */
+  --text-heading-lg: 28px;
+  --leading-heading-lg: 1.2;
+  --tracking-heading-lg: 0.42px;
+
+  /* title (section titles, 3xl) */
+  --text-title: 34px;
+  --leading-title: 1.2;
+  --tracking-title: 0.4px;
+
+  /* display (sans) */
+  --text-display: 48px;
+  --leading-display: 1.15;
+  --tracking-display: 0.72px;
+
+  /* display-lg (Monarch serif hero only) */
+  --text-display-lg: 72px;
+  --leading-display-lg: 1.2;
+  --tracking-display-lg: 0;
+}

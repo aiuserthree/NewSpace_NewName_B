@@ -1,0 +1,39 @@
+<!-- @dsCard group="Components" viewport="700x430" name="Content — SectionHeading · FeatureCard · FeatureSplit" subtitle="Section header, three-up cards, alternating split" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; padding: 26px 28px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 26px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { SectionHeading, FeatureCard } = window.HarvestDesignSystem_eb006c;
+  function Demo() {
+    return (
+      <div>
+        <SectionHeading
+          eyebrow="공모 안내"
+          title="세 공간의 이름을 함께"
+          subtitle="교인 여러분의 손으로 새 공간의 이름을 제안해 주세요."
+        />
+        <div className="grid3">
+          <FeatureCard icon="church" title="본당" body="새로 짓는 본당의 이름을 조감도와 함께 상상해 보세요." linkText="조감도 보기" />
+          <FeatureCard icon="heart" title="소예배실" body="청년·청소년을 위한 액티브한 공간의 이름." linkText="사진 보기" />
+          <FeatureCard icon="users" title="새가족부실" body="새가족을 맞이하는 따뜻한 공간의 이름." linkText="사진 보기" />
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>

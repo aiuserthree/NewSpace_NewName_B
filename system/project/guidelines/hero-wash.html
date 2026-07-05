@@ -1,0 +1,30 @@
+<!-- @dsCard group="Brand" viewport="700x230" name="Hero wash" subtitle="Flowing orange · marigold · peach behind hero content — low opacity, blurred" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; }
+  .stage { position: relative; height: 230px; overflow: hidden; background: var(--surface-page); display: flex; align-items: center; justify-content: center; }
+  .wash { position: absolute; inset: -10% -5%;
+    background:
+      radial-gradient(42% 55% at 30% 40%, rgba(250,93,0,0.28) 0%, rgba(250,93,0,0) 70%),
+      radial-gradient(46% 60% at 70% 32%, rgba(254,227,181,0.85) 0%, rgba(254,227,181,0) 72%),
+      radial-gradient(50% 60% at 55% 74%, rgba(255,173,122,0.45) 0%, rgba(255,173,122,0) 70%);
+    filter: blur(26px); }
+  .content { position: relative; z-index: 1; text-align: center; }
+  .content h1 { margin: 0; font-family: var(--font-serif-display); font-weight: 400; font-size: 40px; color: var(--text-primary); }
+  .content p { margin: 8px 0 0; font-family: var(--font-sans); font-size: 15px; color: var(--text-secondary); letter-spacing: 0.015em; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="wash"></div>
+    <div class="content">
+      <h1>golden hour warmth</h1>
+      <p>content always floats clearly above the wash</p>
+    </div>
+  </div>
+</body>
+</html>

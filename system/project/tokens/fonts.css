@@ -1,0 +1,40 @@
+/* ============================================================
+   FONTS — webfonts + family tokens
+   MuotoWeb (geometric UI sans) and Monarch (display serif) are
+   PROPRIETARY Harvest faces we cannot ship. Substituted with:
+     MuotoWeb  -> Pretendard  (warm geometric sans, full Korean + Latin)
+     Monarch   -> Newsreader  (editorial display serif, Latin)
+                  + Gowun Batang (Korean serif fallback for hero copy)
+   Pretendard is self-hosted (assets/fonts/); the serifs load from Google
+   Fonts CDN. See readme.md "Fonts".
+   ============================================================ */
+
+/* Serif display faces load from Google Fonts CDN (Latin + Korean fallback). */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap');
+
+/* Pretendard is self-hosted (single variable woff2, weights 45–920, covers
+   Korean + Latin). SIL Open Font License. src is relative to THIS file. */
+@font-face {
+  font-family: 'Pretendard';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url('../assets/fonts/PretendardVariable.woff2') format('woff2');
+}
+
+:root {
+  /* Original Harvest token names, pointed at the substitute stacks */
+  --font-muotoweb: 'Pretendard', ui-sans-serif, system-ui, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-monarch: 'Newsreader', 'Gowun Batang', Georgia, 'Apple SD Gothic Neo', serif;
+
+  /* Semantic aliases */
+  --font-sans: var(--font-muotoweb);
+  --font-serif-display: var(--font-monarch);
+
+  /* Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}

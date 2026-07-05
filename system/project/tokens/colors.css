@@ -1,0 +1,59 @@
+/* ============================================================
+   COLORS — base palette (extracted from getharvest.com) + semantic aliases
+   One vivid orange carries all energy; everything else is warm neutral.
+   ============================================================ */
+
+:root {
+  /* --- Base palette --- */
+  --color-harvest-flame: #fa5d00;   /* the single chromatic decision */
+  --color-marigold-glow: #fee3b5;   /* atmospheric warm wash, never functional */
+  --color-parchment-shadow: #e3d6c5;/* warm-tinted shadow hue */
+  --color-ink-black: #1d1e1c;       /* warm near-black — never pure #000 */
+  --color-paper-white: #ffffff;
+  --color-cream-canvas: #fff8f1;    /* the signature page background */
+  --color-mist-gray: #d9d9d9;       /* hairline dividers */
+  --color-warm-stone: #615f5c;      /* secondary body text */
+  --color-driftwood: #8e8b87;       /* tertiary text, metadata */
+  --color-ironwood: #4a4a47;        /* strong secondary text */
+  --color-ash: #777571;             /* helper text */
+  --color-bone: #c0bbb6;            /* input borders at rest */
+  --color-smoke: #a5a19c;           /* disabled text, low-priority lines */
+  --color-graphite: #999999;        /* tertiary structural lines */
+
+  /* Interaction states for the accent (hover ~10% darker, active ~18%) */
+  --color-flame-hover: #e15400;
+  --color-flame-active: #cd4c00;
+
+  /* --- Semantic: accent --- */
+  --accent: var(--color-harvest-flame);
+  --accent-hover: var(--color-flame-hover);
+  --accent-active: var(--color-flame-active);
+  --accent-wash: var(--color-marigold-glow);
+
+  /* --- Semantic: text --- */
+  --text-primary: var(--color-ink-black);
+  --text-secondary: var(--color-warm-stone);
+  --text-strong-secondary: var(--color-ironwood);
+  --text-tertiary: var(--color-driftwood);
+  --text-muted: var(--color-ash);
+  --text-disabled: var(--color-smoke);
+  --text-placeholder: var(--color-driftwood);
+  --text-on-accent: var(--color-paper-white);
+  --text-link: var(--color-harvest-flame);
+
+  /* --- Semantic: surfaces --- */
+  --surface-page: var(--color-cream-canvas);
+  --surface-card: var(--color-paper-white);
+  --surface-accent: var(--color-harvest-flame);
+  --surface-wash: var(--color-marigold-glow);
+
+  /* --- Semantic: borders & lines --- */
+  --border-input: var(--color-bone);
+  --border-divider: var(--color-mist-gray);
+  --border-subtle: var(--color-graphite);
+  --border-strong: var(--color-ink-black);
+
+  /* --- Semantic: misc --- */
+  --focus-ring: var(--color-harvest-flame);
+  --shadow-tint: var(--color-parchment-shadow);
+}

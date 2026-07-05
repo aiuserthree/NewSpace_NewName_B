@@ -1,0 +1,29 @@
+<!-- @dsCard group="Brand" viewport="700x210" name="Elevation — warm shadows" subtitle="Never cold gray/blue: sm lift + lg marigold glow" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 30px 34px; }
+  .row { display: flex; gap: 40px; align-items: center; }
+  .chip { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  .box { width: 150px; height: 88px; background: var(--surface-card); border-radius: var(--radius-cards); }
+  .meta { text-align: center; }
+  .meta b { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .meta code { font-family: ui-monospace, monospace; font-size: 10px; color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="chip">
+      <div class="box" style="box-shadow: var(--shadow-sm);"></div>
+      <div class="meta"><b>sm — button lift</b><code>rgba(0,0,0,.2) 0 1px 4px</code></div>
+    </div>
+    <div class="chip">
+      <div class="box" style="box-shadow: var(--shadow-lg);"></div>
+      <div class="meta"><b>lg — warm card glow</b><code>rgba(250,166,0,.25) 6px 4px 24px</code></div>
+    </div>
+  </div>
+</body>
+</html>

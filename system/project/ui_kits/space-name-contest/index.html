@@ -1,0 +1,101 @@
+<!-- @dsCard group="공간 이름 공모전" viewport="430x760" name="공간 이름 공모전 — 인터랙티브" subtitle="인트로 → 정보 입력 → 이름 제출 → 완료 / 조회 (모바일 웹 플로우)" -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>공간 이름 공모전</title>
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="../../assets/image-slot.js"></script>
+<style>
+  html, body { margin: 0; background: var(--surface-page); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="Shell.jsx"></script>
+<script type="text/babel" src="SpaceCard.jsx"></script>
+<script type="text/babel" src="IntroScreen.jsx"></script>
+<script type="text/babel" src="ApplicantInfoScreen.jsx"></script>
+<script type="text/babel" src="NameSubmissionScreen.jsx"></script>
+<script type="text/babel" src="CompleteScreen.jsx"></script>
+<script type="text/babel" src="LookupScreen.jsx"></script>
+<script type="text/babel">
+  const { useState } = React;
+
+  const DEMO_EXISTING_PHONE = "01000000000";
+  const DEMO_RECORD = {
+    name: "김은혜",
+    spaces: {
+      bondang: { required: "빛나는 성전", optional: "은혜의 뜰" },
+      soyebae: { required: "청년의 다락방", optional: "" },
+      saega: { required: "만남의 방", optional: "첫걸음실" },
+    },
+  };
+  const digits = (s) => (s || "").replace(/\D/g, "");
+
+  function App() {
+    const [screen, setScreen] = useState("intro");
+    const [name, setName] = useState("");
+    const [phone, setPhone] = useState("");
+    const [duplicate, setDuplicate] = useState(false);
+    const [lookup, setLookup] = useState({ applicant: { name: "", phone: "" }, submission: DEMO_RECORD.spaces });
+
+    const goHome = () => {
+      setScreen("intro");
+      setName(""); setPhone(""); setDuplicate(false);
+    };
+
+    const handleNext = () => {
+      if (digits(phone) === DEMO_EXISTING_PHONE) {
+        setDuplicate(true);
+      } else {
+        setDuplicate(false);
+        setScreen("submit");
+      }
+    };
+
+    const openDuplicateLookup = () => {
+      setLookup({ applicant: { name: DEMO_RECORD.name, phone }, submission: DEMO_RECORD.spaces });
+      setScreen("lookup");
+    };
+
+    const handleSubmit = (names) => {
+      setLookup({ applicant: { name, phone }, submission: names });
+      setScreen("complete");
+    };
+
+    let body;
+    if (screen === "intro") {
+      body = <IntroScreen onStart={() => setScreen("info")} />;
+    } else if (screen === "info") {
+      body = (
+        <ApplicantInfoScreen
+          name={name}
+          phone={phone}
+          onNameChange={setName}
+          onPhoneChange={(v) => { setPhone(v); if (duplicate) setDuplicate(false); }}
+          duplicate={duplicate}
+          onNext={handleNext}
+          onLookup={openDuplicateLookup}
+        />
+      );
+    } else if (screen === "submit") {
+      body = <NameSubmissionScreen applicantName={name} onSubmit={handleSubmit} />;
+    } else if (screen === "complete") {
+      body = <CompleteScreen onLookup={() => setScreen("lookup")} onHome={goHome} />;
+    } else if (screen === "lookup") {
+      body = <LookupScreen applicant={lookup.applicant} submission={lookup.submission} onHome={goHome} />;
+    }
+
+    return <Shell onHome={goHome}>{body}</Shell>;
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

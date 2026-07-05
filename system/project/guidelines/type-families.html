@@ -1,0 +1,36 @@
+<!-- @dsCard group="Type" viewport="700x230" name="Font families & weights" subtitle="Pretendard (sans) + Newsreader / Gowun Batang (serif); 400·500·600·700" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 26px 34px; display: flex; flex-direction: column; gap: 20px; }
+  .fam { display: flex; gap: 24px; align-items: center; }
+  .name { width: 150px; flex: 0 0 auto; }
+  .name b { display: block; font-size: 15px; font-weight: 600; color: var(--text-primary); }
+  .name span { font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, monospace; }
+  .sample-sans { font-family: var(--font-sans); font-size: 26px; color: var(--text-primary); letter-spacing: 0.015em; }
+  .sample-serif { font-family: var(--font-serif-display); font-size: 30px; color: var(--text-primary); }
+  .weights { display: flex; gap: 18px; font-family: var(--font-sans); font-size: 18px; color: var(--text-primary); align-items: baseline; }
+  .weights span { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .weights small { font-size: 10px; color: var(--text-tertiary); font-family: ui-monospace, monospace; }
+</style>
+</head>
+<body>
+  <div class="fam">
+    <div class="name"><b>Pretendard</b><span>--font-sans</span></div>
+    <div class="sample-sans">한글 Aa 함께 지어요 123</div>
+  </div>
+  <div class="fam">
+    <div class="name"><b>Newsreader<br/>+ Gowun Batang</b><span>--font-serif-display</span></div>
+    <div class="sample-serif">이름을 함께 Harvest</div>
+  </div>
+  <div class="weights">
+    <span style="font-weight:400">가Aa<small>400 regular</small></span>
+    <span style="font-weight:500">가Aa<small>500 medium</small></span>
+    <span style="font-weight:600">가Aa<small>600 semibold</small></span>
+    <span style="font-weight:700">가Aa<small>700 bold</small></span>
+  </div>
+</body>
+</html>

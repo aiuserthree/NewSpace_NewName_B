@@ -1,0 +1,31 @@
+<!-- @dsCard group="Colors" viewport="700x200" name="Atmospheric" subtitle="Decorative-only warmth — never functional color" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 26px 28px; }
+  .row { display: flex; gap: 16px; }
+  .chip { flex: 1 1 0; display: flex; flex-direction: column; gap: 10px; }
+  .sw { height: 92px; border-radius: var(--radius-cards); }
+  .meta b { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .meta .hex { font-size: 12px; color: var(--text-secondary); }
+  .meta code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--text-tertiary); }
+  .note { flex: 1.4 1 0; align-self: center; font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="chip">
+      <div class="sw" style="background: var(--color-marigold-glow);"></div>
+      <div class="meta"><b>Marigold Glow</b><span class="hex">#fee3b5</span><code>--surface-wash</code></div>
+    </div>
+    <div class="chip">
+      <div class="sw" style="background: var(--color-parchment-shadow);"></div>
+      <div class="meta"><b>Parchment Shadow</b><span class="hex">#e3d6c5</span><code>--shadow-tint</code></div>
+    </div>
+    <p class="note">Both are <b>atmospheric only</b> — soft washes behind product UI and the warm hue inside shadows. Never use them to carry meaning or as functional fills.</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!-- @dsCard group="Spacing" viewport="700x200" name="Layout" subtitle="Centered 1200px container, generous vertical rhythm" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 26px 30px; display: flex; gap: 28px; }
+  .item { display: flex; flex-direction: column; gap: 8px; }
+  .num { font-family: var(--font-serif-display); font-size: 40px; color: var(--accent); line-height: 1; }
+  .lab b { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .lab code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--text-tertiary); }
+  .div { width: 1px; background: var(--border-divider); align-self: stretch; }
+</style>
+</head>
+<body>
+  <div class="item"><span class="num">1200</span><span class="lab"><b>Page max-width</b><code>--page-max-width</code></span></div>
+  <div class="div"></div>
+  <div class="item"><span class="num">72</span><span class="lab"><b>Section gap (64–80)</b><code>--section-gap</code></span></div>
+  <div class="div"></div>
+  <div class="item"><span class="num">36</span><span class="lab"><b>Card padding (32–40)</b><code>--card-padding</code></span></div>
+  <div class="div"></div>
+  <div class="item"><span class="num">20</span><span class="lab"><b>Element gap (16–24)</b><code>--element-gap</code></span></div>
+</body>
+</html>

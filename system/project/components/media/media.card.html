@@ -1,0 +1,48 @@
+<!-- @dsCard group="Components" viewport="700x300" name="Media — Icon" subtitle="Curated Lucide set; stroke follows currentColor" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; padding: 24px 28px; }
+  .grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 16px 10px; color: var(--text-primary); }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .cell span { font-family: ui-monospace, monospace; font-size: 9px; color: var(--text-tertiary); text-align: center; }
+  .sizes { display: flex; align-items: flex-end; gap: 18px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border-divider); color: var(--accent); }
+  .sizes .s { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .sizes small { font-family: ui-monospace, monospace; font-size: 10px; color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { Icon, ICON_NAMES } = window.HarvestDesignSystem_eb006c;
+  function Demo() {
+    return (
+      <div>
+        <div className="grid">
+          {ICON_NAMES.map((n) => (
+            <div className="cell" key={n}>
+              <Icon name={n} size={22} />
+              <span>{n}</span>
+            </div>
+          ))}
+        </div>
+        <div className="sizes">
+          <div className="s"><Icon name="clock" size={16} /><small>16</small></div>
+          <div className="s"><Icon name="clock" size={24} /><small>24</small></div>
+          <div className="s"><Icon name="clock" size={32} /><small>32</small></div>
+          <div className="s"><Icon name="clock" size={48} strokeWidth={1.75} /><small>48</small></div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!-- @dsCard group="Colors" viewport="700x210" name="Text neutrals" subtitle="Warm gray ramp — never pure black or cold gray" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 24px 28px; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+  .chip { display: flex; flex-direction: column; gap: 8px; }
+  .sw { height: 80px; border-radius: 12px; }
+  .meta b { display: block; font-size: 12px; font-weight: 600; color: var(--text-primary); }
+  .meta .hex { font-size: 11px; color: var(--text-secondary); }
+  .meta code { font-family: ui-monospace, monospace; font-size: 10px; color: var(--text-tertiary); display: block; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="chip"><div class="sw" style="background:var(--color-ink-black)"></div><div class="meta"><b>Ink</b><span class="hex">#1d1e1c</span><code>--text-primary</code></div></div>
+    <div class="chip"><div class="sw" style="background:var(--color-ironwood)"></div><div class="meta"><b>Ironwood</b><span class="hex">#4a4a47</span><code>strong-2nd</code></div></div>
+    <div class="chip"><div class="sw" style="background:var(--color-warm-stone)"></div><div class="meta"><b>Warm Stone</b><span class="hex">#615f5c</span><code>--text-secondary</code></div></div>
+    <div class="chip"><div class="sw" style="background:var(--color-ash)"></div><div class="meta"><b>Ash</b><span class="hex">#777571</span><code>--text-muted</code></div></div>
+    <div class="chip"><div class="sw" style="background:var(--color-driftwood)"></div><div class="meta"><b>Driftwood</b><span class="hex">#8e8b87</span><code>--text-tertiary</code></div></div>
+    <div class="chip"><div class="sw" style="background:var(--color-smoke)"></div><div class="meta"><b>Smoke</b><span class="hex">#a5a19c</span><code>--text-disabled</code></div></div>
+    <div class="chip"><div class="sw" style="background:var(--color-graphite)"></div><div class="meta"><b>Graphite</b><span class="hex">#999999</span><code>lines</code></div></div>
+  </div>
+</body>
+</html>

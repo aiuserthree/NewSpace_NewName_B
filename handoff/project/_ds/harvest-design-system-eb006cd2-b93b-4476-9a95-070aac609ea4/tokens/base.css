@@ -1,0 +1,24 @@
+/* ============================================================
+   BASE — light preflight so surfaces linking styles.css inherit the
+   brand defaults (cream canvas, warm near-black text, sans body).
+   Consumers can override freely.
+   ============================================================ */
+
+:root { color-scheme: light; }
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  color: var(--text-primary);
+  background: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-synthesis-weight: none;
+}

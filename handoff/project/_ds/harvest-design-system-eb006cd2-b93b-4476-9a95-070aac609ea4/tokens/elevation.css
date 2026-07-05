@@ -1,0 +1,22 @@
+/* ============================================================
+   ELEVATION — shadows & surface levels
+   Shadows are WARM-tinted, never cold gray/blue.
+   - sm: subtle button lift
+   - lg: warm marigold glow behind cards (the signature card shadow)
+   ============================================================ */
+
+:root {
+  --shadow-sm: rgba(0, 0, 0, 0.2) 0px 1px 4px 0px;
+  --shadow-lg: rgba(250, 166, 0, 0.25) 6px 4px 24px 0px;
+
+  /* Semantic aliases */
+  --shadow-button: var(--shadow-sm);
+  --shadow-card: var(--shadow-lg);
+  --shadow-image: var(--shadow-lg);
+
+  /* Surface levels
+     1 — cream canvas (page), 2 — paper white (cards), 3 — orange (brand) */
+  --surface-cream-canvas: #fff8f1;
+  --surface-paper-white: #ffffff;
+  --surface-orange-brand-surface: #fa5d00;
+}

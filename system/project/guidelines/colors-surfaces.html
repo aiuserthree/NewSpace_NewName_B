@@ -1,0 +1,34 @@
+<!-- @dsCard group="Colors" viewport="700x220" name="Surfaces" subtitle="Cream canvas → white card → orange brand, three elevation levels" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 26px 28px; }
+  .row { display: flex; gap: 16px; }
+  .chip { flex: 1 1 0; display: flex; flex-direction: column; gap: 10px; }
+  .sw { height: 104px; border-radius: var(--radius-cards); display: flex; align-items: flex-end; padding: 12px; }
+  .lvl { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .meta b { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .meta .hex { font-size: 12px; color: var(--text-secondary); }
+  .meta code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="chip">
+      <div class="sw" style="background: var(--surface-cream-canvas); border: 1px solid var(--border-divider);"><span class="lvl" style="color: var(--text-tertiary);">Level 1</span></div>
+      <div class="meta"><b>Cream Canvas</b><span class="hex">#fff8f1</span><code>--surface-page</code></div>
+    </div>
+    <div class="chip">
+      <div class="sw" style="background: var(--surface-paper-white); box-shadow: var(--shadow-lg);"><span class="lvl" style="color: var(--text-tertiary);">Level 2</span></div>
+      <div class="meta"><b>Paper White</b><span class="hex">#ffffff</span><code>--surface-card</code></div>
+    </div>
+    <div class="chip">
+      <div class="sw" style="background: var(--surface-orange-brand-surface);"><span class="lvl" style="color: rgba(255,255,255,0.85);">Level 3</span></div>
+      <div class="meta"><b>Orange Brand</b><span class="hex">#fa5d00</span><code>--surface-accent</code></div>
+    </div>
+  </div>
+</body>
+</html>

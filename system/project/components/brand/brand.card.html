@@ -1,0 +1,64 @@
+<!-- @dsCard group="Components" viewport="700x520" name="Brand — NavBar · HeroWash · PreviewCard · TrustLogoRow · LogoCircle" subtitle="The Harvest marketing surface primitives" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; }
+  .hero { position: relative; overflow: hidden; padding: 40px 28px 32px; text-align: center; }
+  .hero h1 { position: relative; z-index: 1; margin: 0 0 20px; font-family: var(--font-serif-display); font-weight: 400; font-size: 40px; color: var(--text-primary); }
+  .shot { position: relative; z-index: 1; height: 120px; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-family: var(--font-sans); font-size: 13px; }
+  .bars { display: flex; flex-direction: column; gap: 8px; width: 80%; }
+  .bar { height: 12px; border-radius: 6px; background: var(--surface-page); }
+  .footer { padding: 28px; display: flex; flex-direction: column; gap: 24px; align-items: center; border-top: 1px solid var(--border-divider); }
+  .circles { display: flex; gap: 12px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { NavBar, HeroWash, PreviewCard, TrustLogoRow, LogoCircle } = window.HarvestDesignSystem_eb006c;
+  function Demo() {
+    return (
+      <div>
+        <NavBar
+          brand="harvest"
+          links={[{label:"Features", hasMenu:true},{label:"Why Harvest", hasMenu:true},{label:"Resources", hasMenu:true}]}
+          signInLabel="Sign in"
+          ctaLabel="Try Harvest free"
+        />
+        <div className="hero">
+          <HeroWash />
+          <h1>Time tracking, warmed up</h1>
+          <div className="shot">
+            <PreviewCard tilt={-1.5} padded style={{ width: 300 }}>
+              <div className="bars">
+                <div className="bar" style={{ width: "60%", background: "var(--accent)", opacity: 0.85 }}></div>
+                <div className="bar"></div>
+                <div className="bar" style={{ width: "80%" }}></div>
+                <div className="bar" style={{ width: "45%" }}></div>
+              </div>
+            </PreviewCard>
+          </div>
+        </div>
+        <div className="footer">
+          <TrustLogoRow label="TRUSTED BY 70,000+ COMPANIES" logos={["Acme", "Globex", "Umbra", "Initech"]} />
+          <div className="circles">
+            <LogoCircle>A</LogoCircle>
+            <LogoCircle>B</LogoCircle>
+            <LogoCircle>C</LogoCircle>
+            <LogoCircle>D</LogoCircle>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<Demo />);
+</script>
+</body>
+</html>

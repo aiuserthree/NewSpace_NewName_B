@@ -1,0 +1,34 @@
+<!-- @dsCard group="Colors" viewport="700x190" name="Borders & lines" subtitle="Input outlines and hairline dividers" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 26px 28px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .demo { background: var(--surface-card); border-radius: var(--radius-2xl); height: 64px; display: flex; align-items: center; justify-content: center; }
+  .meta { margin-top: 10px; }
+  .meta b { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .meta .hex { font-size: 12px; color: var(--text-secondary); }
+  .meta code { font-family: ui-monospace, monospace; font-size: 11px; color: var(--text-tertiary); }
+  .line { width: 80%; height: 0; }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div>
+      <div class="demo" style="border: 1px solid var(--color-bone);"><span style="color:var(--text-tertiary); font-size:13px;">입력 필드 테두리</span></div>
+      <div class="meta"><b>Bone</b><span class="hex">#c0bbb6</span> · <code>--border-input</code></div>
+    </div>
+    <div>
+      <div class="demo" style="border: 1px solid transparent;"><div class="line" style="border-top: 1px solid var(--color-mist-gray);"></div></div>
+      <div class="meta"><b>Mist Gray</b><span class="hex">#d9d9d9</span> · <code>--border-divider</code></div>
+    </div>
+    <div>
+      <div class="demo" style="border: 1px solid transparent;"><div class="line" style="border-top: 1px solid var(--color-graphite);"></div></div>
+      <div class="meta"><b>Graphite</b><span class="hex">#999999</span> · <code>--border-subtle</code></div>
+    </div>
+  </div>
+</body>
+</html>
