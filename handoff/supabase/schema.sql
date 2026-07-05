@@ -103,43 +103,12 @@ grant execute on function public.lookup_submission(text, text) to anon, authenti
 grant execute on function public.submission_exists(text, text) to anon, authenticated;
 
 -- ------------------------------------------------------------------
--- 4. 관리자 신청 데이터 초기화 RPC
--- ------------------------------------------------------------------
-create or replace function public.clear_all_submissions()
-returns bigint
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-  deleted_count bigint;
-begin
-  if auth.uid() is null then
-    raise exception 'not authenticated';
-  end if;
-
-  if not exists (
-    select 1 from public.admin_profiles ap
-    where ap.user_id = auth.uid()
-  ) then
-    raise exception 'not authorized';
-  end if;
-
-  delete from public.submissions;
-  get diagnostics deleted_count = row_count;
-  return deleted_count;
-end;
-$$;
-
-grant execute on function public.clear_all_submissions() to authenticated;
-
--- ------------------------------------------------------------------
--- 5. Realtime (관리자 실시간 목록)
+-- 4. Realtime (관리자 실시간 목록)
 -- ------------------------------------------------------------------
 alter publication supabase_realtime add table public.submissions;
 
 -- ------------------------------------------------------------------
--- 6. 관리자 계정 등록 (Auth에서 사용자 생성 후 실행)
+-- 5. 관리자 계정 등록 (Auth에서 사용자 생성 후 실행)
 --    insert into public.admin_profiles (user_id)
 --    values ('YOUR-AUTH-USER-UUID');
 -- ------------------------------------------------------------------

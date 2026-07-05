@@ -153,16 +153,6 @@ window.SNC_DB = (function () {
     return !!data;
   }
 
-  async function clearAllSubmissions() {
-    const sb = getClient();
-    if (!sb) throw new Error("Supabase가 설정되지 않았습니다.");
-    const admin = await isAdmin();
-    if (!admin) throw new Error("관리자 권한이 필요합니다.");
-    const { data, error } = await sb.rpc("clear_all_submissions");
-    if (error) throw error;
-    return data || 0;
-  }
-
   return {
     isConfigured,
     configStatus,
@@ -177,6 +167,5 @@ window.SNC_DB = (function () {
     signOut,
     getSession,
     isAdmin,
-    clearAllSubmissions,
   };
 })();

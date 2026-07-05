@@ -154,13 +154,7 @@ window.SNC = (function () {
   const useRemote = () => window.SNC_DB && window.SNC_DB.isConfigured();
 
   function readMap() {
-    const m = parse(localStorage.getItem(SUB_KEY), {});
-    const demoKey = makeKey(DEMO_NAME, DEMO_PHONE);
-    if (!m[demoKey]) {
-      m[demoKey] = DEMO_RECORD;
-      try { localStorage.setItem(SUB_KEY, JSON.stringify(m)); } catch (e) {}
-    }
-    return m;
+    return parse(localStorage.getItem(SUB_KEY), {});
   }
 
   function findLocal(name, phone) {
@@ -239,14 +233,6 @@ window.SNC = (function () {
       if (cached) return cached;
       const key = this.lastKey();
       return key ? readMap()[key] || null : null;
-    },
-    clearLocalData() {
-      try {
-        localStorage.removeItem(SUB_KEY);
-        localStorage.removeItem(CUR_KEY);
-        localStorage.removeItem(LAST_KEY);
-        localStorage.removeItem(LAST_REC_KEY);
-      } catch (e) {}
     },
   };
 })();

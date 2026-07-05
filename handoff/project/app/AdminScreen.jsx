@@ -127,7 +127,6 @@ function AdminScreen() {
   const [rows, setRows] = React.useState([]);
   const [listError, setListError] = React.useState("");
   const [page, setPage] = React.useState(1);
-  const [resetBusy, setResetBusy] = React.useState(false);
 
   const totalPages = Math.max(1, Math.ceil(rows.length / ADMIN_PAGE_SIZE));
   const pagedRows = rows.slice((page - 1) * ADMIN_PAGE_SIZE, page * ADMIN_PAGE_SIZE);
@@ -204,24 +203,6 @@ function AdminScreen() {
     setPage(1);
   };
 
-  const onClearAll = async () => {
-    if (rows.length === 0) return;
-    if (!window.confirm(`총 ${rows.length}건의 신청 데이터를 모두 삭제합니다. 계속하시겠습니까?`)) return;
-    if (!window.confirm("삭제된 데이터는 복구할 수 없습니다. 정말 초기화하시겠습니까?")) return;
-    setResetBusy(true);
-    setListError("");
-    try {
-      const deleted = await window.SNC_DB.clearAllSubmissions();
-      setPage(1);
-      await loadRows();
-      window.alert(`신청 데이터 ${deleted}건을 초기화했습니다.`);
-    } catch (e) {
-      setListError("신청 데이터 초기화에 실패했습니다. Supabase SQL Editor에서 reset-submissions.sql 또는 schema.sql의 clear_all_submissions 함수를 실행했는지 확인해 주세요.");
-    } finally {
-      setResetBusy(false);
-    }
-  };
-
   if (booting) {
     return (
       <AdminShell>
@@ -270,12 +251,9 @@ function AdminScreen() {
             <Tag tone="wash" icon="sparkles">실시간 연동</Tag>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 8 }}>
           <Button variant="secondary" size="sm" disabled={rows.length === 0} onClick={() => downloadSubmissionsExcel(rows, spaces)}>
             엑셀 다운로드
-          </Button>
-          <Button variant="secondary" size="sm" disabled={rows.length === 0 || resetBusy} onClick={onClearAll}>
-            {resetBusy ? "초기화 중…" : "데이터 초기화"}
           </Button>
           <Button variant="secondary" size="sm" onClick={loadRows}>새로고침</Button>
           <Button variant="ghost" size="sm" onClick={onLogout}>로그아웃</Button>
