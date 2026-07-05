@@ -67,23 +67,58 @@ function ImageLightbox({ images, spaceName, initialIndex, onClose }) {
   };
 
   return (
+    <>
+      <style>{`
+        .snc-lightbox {
+          position: fixed;
+          inset: 0;
+          z-index: 1000;
+          background: rgba(17, 17, 17, 0.92);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px 56px;
+          box-sizing: border-box;
+          user-select: none;
+        }
+        .snc-lightbox__stage {
+          position: relative;
+          width: 100%;
+          max-width: 720px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .snc-lightbox__img {
+          display: block;
+          max-width: 100%;
+          max-height: min(78vh, 720px);
+          width: auto;
+          height: auto;
+          object-fit: contain;
+          border-radius: var(--radius-xl);
+          box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+        }
+        @media (max-width: 640px) {
+          .snc-lightbox {
+            padding: 8px 6px 52px;
+          }
+          .snc-lightbox__stage {
+            max-width: none;
+          }
+          .snc-lightbox__img {
+            max-height: min(88vh, 720px);
+            width: 100%;
+            border-radius: var(--radius-lg);
+          }
+        }
+      `}</style>
     <div
       role="dialog"
       aria-modal="true"
       aria-label={`${spaceName} 사진 보기`}
       onClick={onClose}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        background: "rgba(17, 17, 17, 0.92)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px 56px",
-        boxSizing: "border-box",
-        userSelect: "none",
-      }}
+      className="snc-lightbox"
     >
       <button
         type="button"
@@ -136,29 +171,13 @@ function ImageLightbox({ images, spaceName, initialIndex, onClose }) {
         onClick={(e) => e.stopPropagation()}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
-        style={{
-          position: "relative",
-          width: "100%",
-          maxWidth: 720,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        className="snc-lightbox__stage"
       >
         <img
           src={images[index]}
           alt={`${spaceName} ${index + 1}`}
           draggable={false}
-          style={{
-            display: "block",
-            maxWidth: "100%",
-            maxHeight: "min(78vh, 720px)",
-            width: "auto",
-            height: "auto",
-            objectFit: "contain",
-            borderRadius: "var(--radius-xl)",
-            boxShadow: "0 24px 64px rgba(0,0,0,0.35)",
-          }}
+          className="snc-lightbox__img"
         />
       </div>
 
@@ -183,6 +202,7 @@ function ImageLightbox({ images, spaceName, initialIndex, onClose }) {
         {hasMultiple ? " · 좌우로 밀어 다른 사진 보기" : ""}
       </span>
     </div>
+    </>
   );
 }
 
