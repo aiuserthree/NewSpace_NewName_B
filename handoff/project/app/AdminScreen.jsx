@@ -226,10 +226,7 @@ function AdminScreen() {
       <AdminShell>
         <div style={{ maxWidth: 400, margin: "40px auto", display: "flex", flexDirection: "column", gap: 20 }}>
           <div>
-            <h1 style={{ margin: "0 0 8px", fontFamily: "var(--font-sans)", fontSize: 24, fontWeight: 600, color: "var(--text-primary)" }}>관리자 로그인</h1>
-            <p style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "var(--text-caption)", color: "var(--text-secondary)", lineHeight: 1.6 }}>
-              Supabase Auth 계정으로 로그인하세요. `admin_profiles`에 등록된 계정만 접근할 수 있습니다.
-            </p>
+            <h1 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: 24, fontWeight: 600, color: "var(--text-primary)" }}>관리자 로그인</h1>
           </div>
           <form onSubmit={onLogin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <Input label="이메일" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="username" />

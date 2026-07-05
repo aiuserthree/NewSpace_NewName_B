@@ -7,11 +7,13 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
   const cfg = window.SNC_CONFIG;
   const heroImg = spaces[0].image;
 
-  const eyebrow = "우리 교회 공간 이름 공모";
+  const eyebrow = "영암교회 새 공간 이름 공모전";
   const headline = (
-    <>우리 공간의 이름을<br />함께 지어주세요</>
+    <>새로운 공간의 이름을<br />함께 지어주세요</>
   );
-  const subtitle = "새로 짓고 단장하는 세 공간의 이름을 교인 여러분의 마음으로 제안해 주세요.";
+  const subtitle = (
+    <>새로 짓고 단장하는 세 공간의 이름을<br />교인 여러분의 마음으로 제안해 주세요.</>
+  );
 
   const steps = [
     { icon: "user", text: "이름·소속·연락처를 입력해요" },
