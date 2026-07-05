@@ -7,11 +7,16 @@ window.SNC_DB = (function () {
     return window.SUPABASE_CONFIG || {};
   }
 
+  function getLib() {
+    return window.supabase && window.supabase.createClient ? window.supabase : null;
+  }
+
   function getClient() {
     const { url, anonKey } = cfg();
-    if (!url || !anonKey || !window.supabase) return null;
+    const lib = getLib();
+    if (!url || !anonKey || !lib) return null;
     if (!client) {
-      client = window.supabase.createClient(url, anonKey, {
+      client = lib.createClient(url, anonKey, {
         auth: {
           persistSession: true,
           autoRefreshToken: true,
@@ -23,7 +28,14 @@ window.SNC_DB = (function () {
 
   function isConfigured() {
     const { url, anonKey } = cfg();
-    return Boolean(url && anonKey && window.supabase);
+    return Boolean(url && anonKey && getLib());
+  }
+
+  function configStatus() {
+    const { url, anonKey } = cfg();
+    if (!url || !anonKey) return "missing-config";
+    if (!getLib()) return "missing-sdk";
+    return "ready";
   }
 
   function mapRow(row) {
@@ -143,6 +155,7 @@ window.SNC_DB = (function () {
 
   return {
     isConfigured,
+    configStatus,
     getClient,
     mapRow,
     find,
