@@ -6,6 +6,7 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
   const spaces = window.CONTEST_SPACES;
   const cfg = window.SNC_CONFIG;
   const heroImg = spaces[0].image;
+  const [viewer, setViewer] = React.useState(null);
 
   const eyebrow = "영암교회 새 공간 이름 공모전";
   const headline = (
@@ -95,13 +96,43 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
           {spaces.map((sp) => (
             <div key={sp.id} style={{ display: "flex", alignItems: "center", gap: 14, background: "var(--surface-card)", borderRadius: "var(--radius-2xl)", padding: "10px 14px", boxShadow: "var(--shadow-sm)" }}>
               <img src={sp.image} alt={sp.name} style={{ width: 52, height: 52, flex: "0 0 auto", borderRadius: "var(--radius-2xl)", objectFit: "cover" }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <span style={{ fontFamily: "var(--font-sans)", fontSize: "var(--text-body)", fontWeight: 600, letterSpacing: "0.015em", color: "var(--text-primary)" }}>{sp.order} {sp.name}</span>
-              </div>
+              <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--font-sans)", fontSize: "var(--text-body)", fontWeight: 600, letterSpacing: "0.015em", color: "var(--text-primary)" }}>{sp.order} {sp.name}</span>
+              <button
+                type="button"
+                onClick={() => setViewer({ space: sp, index: 0 })}
+                style={{
+                  flex: "0 0 auto",
+                  padding: "5px 11px",
+                  border: "1px solid rgba(250, 93, 0, 0.22)",
+                  borderRadius: "var(--radius-full)",
+                  background: "var(--surface-wash)",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.02em",
+                  color: "var(--accent)",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                }}
+              >
+                <Icon name={sp.icon} size={14} strokeWidth={2.2} />
+                사진 보기
+              </button>
             </div>
           ))}
         </div>
       </section>
+
+      {viewer ? (
+        <ImageLightbox
+          images={window.getSpaceImages(viewer.space)}
+          spaceName={viewer.space.name}
+          initialIndex={viewer.index}
+          onClose={() => setViewer(null)}
+        />
+      ) : null}
 
       {/* CTA */}
       <section style={{ padding: "12px 26px 34px", position: "sticky", bottom: 0, background: "linear-gradient(to top, var(--surface-page) 72%, rgba(255,248,241,0))" }}>
