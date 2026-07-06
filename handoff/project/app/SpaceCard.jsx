@@ -66,49 +66,62 @@ function ImageLightbox({ images, spaceName, initialIndex, onClose }) {
     WebkitTapHighlightColor: "transparent",
   };
 
-  return (
+  const content = (
     <>
       <style>{`
         .snc-lightbox {
           position: fixed;
           inset: 0;
-          z-index: 1000;
+          z-index: 10000;
           background: rgba(17, 17, 17, 0.92);
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 20px 56px;
+          padding: 24px 72px;
           box-sizing: border-box;
           user-select: none;
         }
         .snc-lightbox__stage {
           position: relative;
-          width: 100%;
-          max-width: 720px;
           display: flex;
           align-items: center;
           justify-content: center;
+          width: min(calc(100vw - 144px), 1200px);
+          max-width: none;
         }
         .snc-lightbox__img {
           display: block;
-          max-width: 100%;
-          max-height: min(78vh, 720px);
-          width: auto;
+          width: min(calc(100vw - 144px), 1200px);
+          max-width: none;
+          max-height: calc(100vh - 120px);
           height: auto;
           object-fit: contain;
           border-radius: var(--radius-xl);
           box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+        }
+        @media (min-width: 1024px) {
+          .snc-lightbox {
+            padding: 32px 96px;
+          }
+          .snc-lightbox__stage,
+          .snc-lightbox__img {
+            width: min(calc(100vw - 192px), 1400px);
+          }
+          .snc-lightbox__img {
+            max-height: calc(100vh - 96px);
+          }
         }
         @media (max-width: 640px) {
           .snc-lightbox {
             padding: 8px 6px 52px;
           }
           .snc-lightbox__stage {
-            max-width: none;
+            width: 100%;
           }
           .snc-lightbox__img {
-            max-height: min(88vh, 720px);
             width: 100%;
+            max-width: 100%;
+            max-height: min(88vh, 720px);
             border-radius: var(--radius-lg);
           }
         }
@@ -204,6 +217,8 @@ function ImageLightbox({ images, spaceName, initialIndex, onClose }) {
     </div>
     </>
   );
+
+  return ReactDOM.createPortal(content, document.body);
 }
 
 function SpaceImage({ space, height, radius, onOpen, showCount }) {
