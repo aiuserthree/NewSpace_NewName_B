@@ -63,14 +63,10 @@ window.CONTEST_SPACES = [
     id: "bondang",
     order: "①",
     name: "본당",
-    tagline: "신축 · 조감도",
-    description: "새로 짓는 본당입니다. 조감도를 보며 어울리는 이름을 함께 상상해 주세요.",
-    image: "images/bondang/bondang_1.png",
-    images: [
-      "images/bondang/bondang_1.png",
-      "images/bondang/bondang_2.png",
-      "images/bondang/bondang_3.png",
-    ],
+    tagline: "신축 · 사진",
+    description: "새로 짓는 본당입니다. 사진을 보며 어울리는 이름을 함께 상상해 주세요.",
+    image: "images/bondang/thumb.jpg",
+    imageFull: "images/bondang/main.jpg",
     icon: "church",
   },
   {
@@ -79,12 +75,8 @@ window.CONTEST_SPACES = [
     name: "소예배실",
     tagline: "리모델링 · 사진",
     description: "청년과 청소년을 위한 액티브한 공간입니다.",
-    image: "images/soyebae/soyebaesil_1.png",
-    images: [
-      "images/soyebae/soyebaesil_1.png",
-      "images/soyebae/soyebaesil_2.png",
-      "images/soyebae/soyebaesil_3.png",
-    ],
+    image: "images/soyebae/thumb.jpg",
+    imageFull: "images/soyebae/main.jpg",
     icon: "heart",
   },
   {
@@ -93,12 +85,8 @@ window.CONTEST_SPACES = [
     name: "새가족부실",
     tagline: "리모델링 · 사진",
     description: "새가족을 처음 맞이하는 따뜻한 공간입니다.",
-    image: "images/saega/saegajokbusil_1.png",
-    images: [
-      "images/saega/saegajokbusil_1.png",
-      "images/saega/saegajokbusil_2.png",
-      "images/saega/saegajokbusil_3.png",
-    ],
+    image: "images/saega/thumb.jpg",
+    imageFull: "images/saega/main.jpg",
     icon: "users",
   },
 ];
@@ -106,7 +94,18 @@ window.CONTEST_SPACES = [
 window.getSpaceImages = function getSpaceImages(space) {
   if (!space) return [];
   if (Array.isArray(space.images) && space.images.length > 0) return space.images;
+  if (space.imageFull) return [space.imageFull];
   return space.image ? [space.image] : [];
+};
+
+window.prefetchSpaceImage = function prefetchSpaceImage(space) {
+  const src = window.getSpaceImages(space)[0];
+  if (!src || window.__sncPrefetched?.has(src)) return;
+  window.__sncPrefetched = window.__sncPrefetched || new Set();
+  window.__sncPrefetched.add(src);
+  const img = new Image();
+  img.decoding = "async";
+  img.src = src;
 };
 
 window.SNC_INPUT = {

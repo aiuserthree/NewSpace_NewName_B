@@ -95,11 +95,14 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {spaces.map((sp) => (
             <div key={sp.id} style={{ display: "flex", alignItems: "center", gap: 14, background: "var(--surface-card)", borderRadius: "var(--radius-2xl)", padding: "10px 14px", boxShadow: "var(--shadow-sm)" }}>
-              <img src={sp.image} alt={sp.name} style={{ width: 52, height: 52, flex: "0 0 auto", borderRadius: "var(--radius-2xl)", objectFit: "cover" }} />
+              <img src={sp.image} alt={sp.name} loading="lazy" decoding="async" style={{ width: 52, height: 52, flex: "0 0 auto", borderRadius: "var(--radius-2xl)", objectFit: "cover" }} />
               <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--font-sans)", fontSize: "var(--text-body)", fontWeight: 600, letterSpacing: "0.015em", color: "var(--text-primary)" }}>{sp.order} {sp.name}</span>
               <button
                 type="button"
                 onClick={() => setViewer({ space: sp, index: 0 })}
+                onMouseEnter={() => window.prefetchSpaceImage(sp)}
+                onFocus={() => window.prefetchSpaceImage(sp)}
+                onTouchStart={() => window.prefetchSpaceImage(sp)}
                 style={{
                   flex: "0 0 auto",
                   padding: "5px 11px",

@@ -190,6 +190,8 @@ function ImageLightbox({ images, spaceName, initialIndex, onClose }) {
           src={images[index]}
           alt={`${spaceName} ${index + 1}`}
           draggable={false}
+          decoding="async"
+          fetchPriority="high"
           className="snc-lightbox__img"
         />
       </div>
@@ -223,12 +225,14 @@ function ImageLightbox({ images, spaceName, initialIndex, onClose }) {
 
 function SpaceImage({ space, height, radius, onOpen, showCount }) {
   const images = window.getSpaceImages(space);
-  const src = images[0] || space.image;
+  const src = space.image || images[0];
 
   return (
     <div
       style={{ position: "relative", cursor: onOpen ? "pointer" : undefined }}
       onClick={onOpen}
+      onMouseEnter={onOpen ? () => window.prefetchSpaceImage(space) : undefined}
+      onTouchStart={onOpen ? () => window.prefetchSpaceImage(space) : undefined}
       onKeyDown={onOpen ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } } : undefined}
       role={onOpen ? "button" : undefined}
       tabIndex={onOpen ? 0 : undefined}
@@ -237,6 +241,8 @@ function SpaceImage({ space, height, radius, onOpen, showCount }) {
       <img
         src={src}
         alt={space.name}
+        loading="lazy"
+        decoding="async"
         style={{ display: "block", width: "100%", height, objectFit: "cover", borderRadius: radius || 0 }}
       />
       <span
@@ -285,18 +291,20 @@ function SpaceImage({ space, height, radius, onOpen, showCount }) {
 
 function ClickableThumb({ space, onOpen }) {
   const images = window.getSpaceImages(space);
-  const src = images[0] || space.image;
+  const src = space.image || images[0];
 
   return (
     <div
       style={{ position: "relative", flex: "0 0 auto", cursor: onOpen ? "pointer" : undefined }}
       onClick={onOpen}
+      onMouseEnter={onOpen ? () => window.prefetchSpaceImage(space) : undefined}
+      onTouchStart={onOpen ? () => window.prefetchSpaceImage(space) : undefined}
       onKeyDown={onOpen ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } } : undefined}
       role={onOpen ? "button" : undefined}
       tabIndex={onOpen ? 0 : undefined}
       aria-label={onOpen ? `${space.name} 사진 크게 보기` : undefined}
     >
-      <img src={src} alt={space.name} style={{ width: 84, height: 84, borderRadius: "var(--radius-images)", objectFit: "cover", display: "block" }} />
+      <img src={src} alt={space.name} loading="lazy" decoding="async" style={{ width: 84, height: 84, borderRadius: "var(--radius-images)", objectFit: "cover", display: "block" }} />
       {images.length > 1 ? (
         <span
           style={{
@@ -378,7 +386,10 @@ function SpaceCard({ space, values, onChange, layout = "image-top", readOnly = f
   const images = window.getSpaceImages(space);
   const [viewerOpen, setViewerOpen] = React.useState(false);
   const canViewImages = !readOnly && images.length > 0;
-  const openViewer = canViewImages ? () => setViewerOpen(true) : undefined;
+  const openViewer = canViewImages ? () => {
+    window.prefetchSpaceImage(space);
+    setViewerOpen(true);
+  } : undefined;
 
   const cardStyle = {
     background: "var(--surface-card)",
