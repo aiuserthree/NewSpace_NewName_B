@@ -10,8 +10,19 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
 
   const eyebrow = "영암교회 새 공간 이름 공모전";
   const headline = (
-    <>새로운 공간의 이름을<br />함께 지어주세요</>
+    <>
+      {"새로운\u00A0공간의\u00A0이름을"}
+      <br />
+      {"함께\u00A0지어주세요"}
+    </>
   );
+  const heroTitleBase = {
+    margin: 0,
+    fontFamily: "var(--font-serif-display)",
+    fontWeight: 400,
+    lineHeight: 1.2,
+    wordBreak: "keep-all",
+  };
   const subtitle = (
     <>새로 짓고 단장하는 세 공간의 이름을<br />교인 여러분의 마음으로 제안해 주세요.</>
   );
@@ -34,7 +45,7 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
         </div>
         <div style={{ padding: "6px 26px 22px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
           <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--accent)" }}>{eyebrow}</span>
-          <h1 style={{ margin: 0, fontFamily: "var(--font-serif-display)", fontWeight: 400, fontSize: 38, lineHeight: 1.2, color: "var(--text-primary)" }}>{headline}</h1>
+          <h1 style={{ ...heroTitleBase, fontSize: "clamp(22px, 6.7vw, 38px)", color: "var(--text-primary)" }}>{headline}</h1>
           <p style={{ margin: 0, maxWidth: 320, fontFamily: "var(--font-sans)", fontSize: "var(--text-body)", lineHeight: 1.6, letterSpacing: "0.015em", color: "var(--text-secondary)" }}>{subtitle}</p>
         </div>
       </section>
@@ -47,7 +58,7 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
         <span style={{ position: "absolute", top: 14, left: 14, padding: "3px 9px", borderRadius: "var(--radius-full)", background: "rgba(29,30,28,0.5)", color: "#fff", fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 600, backdropFilter: "blur(2px)" }}>예시 이미지</span>
         <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "0 26px 26px", display: "flex", flexDirection: "column", gap: 12 }}>
           <span style={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.12em", color: "#ffd9be" }}>{eyebrow}</span>
-          <h1 style={{ margin: 0, fontFamily: "var(--font-serif-display)", fontWeight: 400, fontSize: 36, lineHeight: 1.2, color: "#fff" }}>{headline}</h1>
+          <h1 style={{ ...heroTitleBase, fontSize: "clamp(20px, 6.4vw, 36px)", color: "#fff" }}>{headline}</h1>
           <p style={{ margin: 0, maxWidth: 330, fontFamily: "var(--font-sans)", fontSize: "var(--text-caption)", lineHeight: 1.6, letterSpacing: "0.015em", color: "rgba(255,255,255,0.9)" }}>{subtitle}</p>
         </div>
       </section>
@@ -58,7 +69,7 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
         <HeroWash intensity={1} />
         <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
           <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--accent)" }}>{eyebrow}</span>
-          <h1 style={{ margin: 0, fontFamily: "var(--font-serif-display)", fontWeight: 400, fontSize: 40, lineHeight: 1.2, color: "var(--text-primary)" }}>{headline}</h1>
+          <h1 style={{ ...heroTitleBase, fontSize: "clamp(22px, 7vw, 40px)", color: "var(--text-primary)" }}>{headline}</h1>
           <p style={{ margin: 0, maxWidth: 320, fontFamily: "var(--font-sans)", fontSize: "var(--text-body)", lineHeight: 1.6, letterSpacing: "0.015em", color: "var(--text-secondary)" }}>{subtitle}</p>
         </div>
       </section>

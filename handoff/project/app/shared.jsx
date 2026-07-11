@@ -339,7 +339,7 @@ function Shell({ children }) {
           <span style={{ color: "var(--accent)", display: "inline-flex" }}>
             <Icon name="church" size={19} />
           </span>
-          <span style={{ fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 600, letterSpacing: "0.015em", color: "var(--text-primary)" }}>
+          <span style={{ fontFamily: "var(--font-sans)", fontSize: "clamp(13px, 3.5vw, 15px)", fontWeight: 600, letterSpacing: "0.015em", color: "var(--text-primary)", whiteSpace: "nowrap" }}>
             {window.SNC_CONFIG.title}
           </span>
         </header>
