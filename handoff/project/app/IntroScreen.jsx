@@ -30,7 +30,7 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
   const steps = [
     { icon: "user", text: "이름·소속·연락처 입력" },
     { icon: "pencil", text: "세 공간의 이름 제안" },
-    { icon: "vote", text: "현장투표(7/19)로 최종 심의 후 결정" },
+    { icon: "vote", text: "모바일 투표한 결과를 최종 심의 후 선정" },
   ];
 
   /* ---------- 히어로 변형 ---------- */
