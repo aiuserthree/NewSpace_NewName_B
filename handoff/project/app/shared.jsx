@@ -10,6 +10,7 @@ window.SNC_CONFIG = {
   // ⚠️ 임시 마감일 — 공모 마감일 확정 후 교체 (열린 이슈 #2)
   deadline: "2026년 7월 18일(토) 밤 12시",
   deadlineShort: "7/18",
+  deadlineIntro: "7월 18일(토)까지",
   deadlineAt: "2026-07-18T23:59:59+09:00",
   isTempDeadline: true,
   // ⚠️ 임시 개인정보 안내 문구 — 확정 후 교체 (열린 이슈 #5)

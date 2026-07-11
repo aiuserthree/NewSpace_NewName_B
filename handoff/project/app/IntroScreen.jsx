@@ -82,7 +82,7 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
 
       {/* 마감 안내 */}
       <div style={{ padding: "14px 26px 4px", display: "flex", justifyContent: "center" }}>
-        <Tag tone="wash" icon="calendar">공모 마감 {cfg.deadlineShort}</Tag>
+        <Tag tone="wash" icon="calendar">공모 마감 {cfg.deadlineIntro}</Tag>
       </div>
 
       {/* 참여 방법 */}
