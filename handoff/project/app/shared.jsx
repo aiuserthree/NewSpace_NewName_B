@@ -272,10 +272,7 @@ window.SNC = (function () {
           err.code = "NOT_FOUND";
           throw err;
         }
-        const phoneTaken = Object.entries(m).some(([key, row]) => (
-          key !== oldKey && digits(row.phone) === newPhone
-        ));
-        if (phoneTaken) {
+        if (newKey !== oldKey && m[newKey]) {
           const err = new Error("PHONE_DUPLICATE");
           err.code = "PHONE_DUPLICATE";
           throw err;

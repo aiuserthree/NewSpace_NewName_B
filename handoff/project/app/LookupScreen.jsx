@@ -274,7 +274,7 @@ function LookupScreen() {
       } else if (e && e.code === "NOT_FOUND") {
         setSaveError("수정할 신청 내역을 찾을 수 없습니다. 다시 조회해 주세요.");
       } else if (e && e.code === "PHONE_DUPLICATE") {
-        setSaveError("이미 다른 신청에 사용 중인 연락처입니다. 번호를 확인해 주세요.");
+        setSaveError("이미 동일한 이름과 연락처로 신청된 내역이 있습니다. 정보를 확인해 주세요.");
       } else if (e && e.code === "RPC_NOT_DEPLOYED") {
         setSaveError("서버에 수정 기능이 아직 설정되지 않았습니다. 담당자에게 문의해 주세요.");
         console.error("[LookupScreen] update_submission RPC not deployed — run handoff/supabase/update-submission.sql in Supabase SQL Editor", e.detail || e);

@@ -130,6 +130,7 @@ declare
   old_phone_key text;
   new_name text;
   new_phone text;
+  new_name_key text;
   new_phone_key text;
 begin
   if now() > deadline then
@@ -140,6 +141,7 @@ begin
   old_phone_key := regexp_replace(p_phone, '\D', '', 'g');
   new_name := trim(regexp_replace(coalesce(nullif(trim(p_name_new), ''), p_name), '\s+', ' ', 'g'));
   new_phone := regexp_replace(coalesce(nullif(trim(p_phone_new), ''), p_phone), '\D', '', 'g');
+  new_name_key := trim(regexp_replace(new_name, '\s+', ' ', 'g'));
   new_phone_key := regexp_replace(new_phone, '\D', '', 'g');
 
   if new_name = '' then
@@ -162,7 +164,8 @@ begin
   if exists (
     select 1
     from public.submissions s
-    where s.phone_key = new_phone_key
+    where s.name_key = new_name_key
+      and s.phone_key = new_phone_key
       and s.id <> target_id
   ) then
     raise exception 'PHONE_DUPLICATE';
