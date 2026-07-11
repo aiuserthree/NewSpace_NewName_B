@@ -115,7 +115,9 @@ function SubmitConfirmModal({ open, onClose, onConfirm, names, spaces, applicant
         <div style={{ padding: "12px 22px 20px", display: "flex", flexDirection: "column", gap: 12 }}>
           <p style={{ margin: 0, display: "flex", alignItems: "flex-start", gap: 6, fontFamily: "var(--font-sans)", fontSize: 12, lineHeight: 1.5, color: "var(--text-tertiary)" }}>
             <span style={{ color: "var(--accent)", display: "inline-flex", marginTop: 1 }}><Icon name="info" size={14} /></span>
-            제출 후에는 웹에서 직접 수정할 수 없어요.
+            {window.SNC.isBeforeDeadline()
+              ? `공모 마감(${window.SNC_CONFIG.deadlineShort}) 전까지 '신청 내용 확인하기'에서 수정할 수 있어요.`
+              : "제출 후에는 웹에서 직접 수정할 수 없어요."}
           </p>
           <div style={{ display: "flex", gap: 10 }}>
             <Button variant="secondary" size="lg" fullWidth disabled={busy} onClick={onClose}>

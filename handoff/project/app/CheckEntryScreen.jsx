@@ -1,5 +1,5 @@
 /* CheckEntryScreen.jsx — P5 신청 내용 확인하기 (조회 진입).
-   이름 + 연락처 입력 → P4 조회. 안내·수정 문의는 이 페이지에 모음. */
+   이름 + 연락처 입력 → P4 조회. 조회·수정 안내는 이 페이지에 모음. */
 
 function CheckEntryScreen() {
   const { Button, Input, Notice, Icon } = window.HarvestDesignSystem_eb006c;
@@ -75,7 +75,7 @@ function CheckEntryScreen() {
       </div>
 
       <Notice tone="info" icon="info" title="조회 안내">
-        신청 시 입력한 이름과 연락처가 모두 일치해야 조회할 수 있어요. 제출 내용은 읽기 전용이며, 웹에서 직접 수정할 수 없습니다.
+        신청 시 입력한 이름과 연락처가 모두 일치해야 조회할 수 있어요.
       </Notice>
 
       <PhoneCorrectionNotice />

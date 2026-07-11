@@ -1,5 +1,5 @@
 /* CompleteScreen.jsx — P3 제출 완료.
-   완료 안내 + 후속(2차 현장 스티커 투표) 안내. 재제출 경로 미노출. */
+   완료 안내 + 후속(온라인 투표) 안내. 재제출 경로 미노출. */
 
 function CompleteScreen() {
   const { Button, Icon, Tag } = window.HarvestDesignSystem_eb006c;
@@ -33,13 +33,20 @@ function CompleteScreen() {
       <div style={{ width: "100%", maxWidth: 340, background: "var(--surface-card)", borderRadius: "var(--radius-cards)", boxShadow: "var(--shadow-lg)", padding: "20px 22px", display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
         <Tag tone="wash" icon="calendar">다음 일정</Tag>
         <p style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: "var(--text-caption)", lineHeight: 1.6, letterSpacing: "0.015em", color: "var(--text-secondary)" }}>
-          {cfg.voteNotice.split("현장 스티커 투표")[0]}
-          <b style={{ color: "var(--text-primary)" }}>현장 스티커 투표</b>
-          {cfg.voteNotice.split("현장 스티커 투표")[1]}
+          {cfg.voteNotice.split("\n")[0]}
+          <br />
+          {cfg.voteNotice.split("\n")[1].split("온라인 투표")[0]}
+          <b style={{ color: "var(--text-primary)" }}>온라인 투표</b>
+          {cfg.voteNotice.split("\n")[1].split("온라인 투표")[1]}
         </p>
       </div>
 
       <div style={{ width: "100%", maxWidth: 340, display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
+        {window.SNC.isBeforeDeadline() ? (
+          <p style={{ margin: "0 0 4px", fontFamily: "var(--font-sans)", fontSize: 12, lineHeight: 1.55, letterSpacing: "0.015em", color: "var(--text-tertiary)", textAlign: "center" }}>
+            공모 마감({cfg.deadlineShort}) 전까지 제출 내용을 확인하고 수정할 수 있어요.
+          </p>
+        ) : null}
         <Button variant="secondary" size="md" fullWidth leftIcon="check-check" onClick={openLookup}>
           내 제출 내용 보기
         </Button>

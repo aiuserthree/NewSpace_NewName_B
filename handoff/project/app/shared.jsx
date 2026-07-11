@@ -9,7 +9,8 @@ window.SNC_CONFIG = {
   church: "우리 교회",
   // ⚠️ 임시 마감일 — 공모 마감일 확정 후 교체 (열린 이슈 #2)
   deadline: "2026년 7월 18일(토) 밤 12시",
-  deadlineShort: "7월 18일(토)까지",
+  deadlineShort: "7/18",
+  deadlineAt: "2026-07-18T23:59:59+09:00",
   isTempDeadline: true,
   // ⚠️ 임시 개인정보 안내 문구 — 확정 후 교체 (열린 이슈 #5)
   privacyNotice:
@@ -35,20 +36,13 @@ window.SNC_CONFIG = {
         heading: "4. 동의 거부 권리",
         body: "개인정보 수집·이용에 동의하지 않을 권리가 있으나, 동의하지 않을 경우 공모 참여가 제한될 수 있습니다.",
       },
-      {
-        heading: "5. 문의",
-        body: "개인정보 처리와 관련한 문의는 최에스겔 목사(010-8255-6308) 에게 연락해 주세요.",
-      },
     ],
   },
   voteNotice:
-    "제안해 주신 이름 중 상위 후보는 추후 현장 스티커 투표로 최종 결정됩니다.",
+    "제안해 주신 이름 중 상위 후보는\n추후 온라인 투표로 최종 결정됩니다.",
   phoneCorrectionNotice: {
     title: "이름과 연락처를 잘못 입력하셨나요?",
-    body: "신청 내용 확인은 이름과 연락처가 모두 일치해야 합니다. 제출 후에는 웹에서 직접 수정할 수 없으므로, 공모 기간 중 최에스겔 목사(010-8255-6308) 에게 연락해 주시면 신청 정보를 확인·수정해 드립니다.",
-    contactLabel: "문의",
-    contact: "최에스겔 목사(010-8255-6308)",
-    isTempContact: false,
+    body: "신청 시 입력했던 이름과 연락처로 조회한 뒤, 공모 마감({deadlineShort}) 전까지 이름·연락처를 포함한 제출 내용을 직접 수정할 수 있습니다.",
   },
   checkEntryGuide:
     "공모 참여 시 입력한 이름과 연락처가 모두 일치해야 신청 내용을 확인할 수 있어요.",
@@ -216,6 +210,13 @@ window.SNC = (function () {
     readCurrent() {
       return parse(localStorage.getItem(CUR_KEY), null);
     },
+    isBeforeDeadline() {
+      const raw = window.SNC_CONFIG.deadlineAt;
+      if (!raw) return true;
+      const deadline = new Date(raw);
+      if (isNaN(deadline)) return true;
+      return Date.now() <= deadline.getTime();
+    },
     async saveSubmission(rec) {
       const normalized = {
         name: normalizeName(rec.name),
@@ -231,6 +232,64 @@ window.SNC = (function () {
         const m = readMap();
         saved = Object.assign({}, normalized, { submittedAt: new Date().toISOString() });
         m[key] = saved;
+        try { localStorage.setItem(SUB_KEY, JSON.stringify(m)); } catch (e) {}
+      }
+      try {
+        localStorage.setItem(LAST_KEY, makeKey(saved.name, saved.phone));
+        localStorage.setItem(LAST_REC_KEY, JSON.stringify(saved));
+      } catch (e) {}
+      return saved;
+    },
+    async updateSubmission(rec) {
+      if (!this.isBeforeDeadline()) {
+        const err = new Error("DEADLINE_PASSED");
+        err.code = "DEADLINE_PASSED";
+        throw err;
+      }
+      const authName = normalizeName(rec.name);
+      const authPhone = digits(rec.phone);
+      const newName = normalizeName(rec.nameNew != null ? rec.nameNew : rec.name);
+      const newPhone = digits(rec.phoneNew != null ? rec.phoneNew : rec.phone);
+      const affiliation = (rec.affiliation || "").trim();
+      const spaces = rec.spaces || {};
+      let saved;
+      if (useRemote()) {
+        saved = await window.SNC_DB.updateSubmission({
+          name: authName,
+          phone: authPhone,
+          nameNew: newName,
+          phoneNew: newPhone,
+          affiliation,
+          spaces,
+        });
+      } else {
+        const oldKey = makeKey(authName, authPhone);
+        const newKey = makeKey(newName, newPhone);
+        const m = readMap();
+        const existing = m[oldKey];
+        if (!existing) {
+          const err = new Error("NOT_FOUND");
+          err.code = "NOT_FOUND";
+          throw err;
+        }
+        const phoneTaken = Object.entries(m).some(([key, row]) => (
+          key !== oldKey && digits(row.phone) === newPhone
+        ));
+        if (phoneTaken) {
+          const err = new Error("PHONE_DUPLICATE");
+          err.code = "PHONE_DUPLICATE";
+          throw err;
+        }
+        saved = Object.assign({}, existing, {
+          name: newName,
+          phone: newPhone,
+          affiliation,
+          spaces,
+        });
+        if (newKey !== oldKey) {
+          delete m[oldKey];
+        }
+        m[newKey] = saved;
         try { localStorage.setItem(SUB_KEY, JSON.stringify(m)); } catch (e) {}
       }
       try {
@@ -387,11 +446,12 @@ function Shell({ children }) {
 window.Shell = Shell;
 
 /* ------------------------------------------------------------------ *
- * 7. 이름·연락처 오입력 안내 — 공모 기간 중 사무실/담당자 수동 확인·수정
+ * 7. 이름·연락처 오입력 안내 — 조회 후 마감 전 직접 수정
  * ------------------------------------------------------------------ */
 function PhoneCorrectionNotice({ compact = false }) {
   const { Notice } = window.HarvestDesignSystem_eb006c;
   const n = window.SNC_CONFIG.phoneCorrectionNotice;
+  const body = n.body.replace("{deadlineShort}", window.SNC_CONFIG.deadlineShort);
 
   return (
     <Notice tone="info" icon="info" title={compact ? undefined : n.title} style={compact ? { padding: "12px 14px" } : undefined}>
@@ -399,21 +459,11 @@ function PhoneCorrectionNotice({ compact = false }) {
         <>
           <strong style={{ color: "var(--text-primary)" }}>{n.title}</strong>
           {" "}
-          {linkifyPhoneNumbers(n.body)}
+          {linkifyPhoneNumbers(body)}
         </>
       ) : (
-        linkifyPhoneNumbers(n.body)
+        linkifyPhoneNumbers(body)
       )}
-      <br /><br />
-      <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>{n.contactLabel}</span>
-      {" · "}
-      {linkifyPhoneNumbers(n.contact)}
-      {n.isTempContact ? (
-        <>
-          <br />
-          <span style={{ fontSize: 11, color: "var(--text-tertiary)" }}>※ 담당자 연락처는 확정 후 안내 예정입니다.</span>
-        </>
-      ) : null}
     </Notice>
   );
 }

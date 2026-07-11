@@ -105,9 +105,115 @@ grant execute on function public.lookup_submission(text, text) to anon, authenti
 grant execute on function public.submission_exists(text, text) to anon, authenticated;
 
 -- ------------------------------------------------------------------
--- 4. Realtime (관리자 실시간 목록)
+-- 3b. 사용자 수정 RPC (이름+연락처 일치 · 마감 전에만)
+--     ⚠️ 기존 DB에 적용 시 아래 함수만 SQL Editor에서 실행하세요.
 -- ------------------------------------------------------------------
-alter publication supabase_realtime add table public.submissions;
+create or replace function public.update_submission(
+  p_name text,
+  p_phone text,
+  p_name_new text,
+  p_phone_new text,
+  p_affiliation text,
+  p_spaces jsonb
+)
+returns json
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  result json;
+  deadline timestamptz := '2026-07-18 23:59:59+09';
+  target_id uuid;
+  updated_id uuid;
+  old_name_key text;
+  old_phone_key text;
+  new_name text;
+  new_phone text;
+  new_phone_key text;
+begin
+  if now() > deadline then
+    raise exception 'DEADLINE_PASSED';
+  end if;
+
+  old_name_key := trim(regexp_replace(p_name, '\s+', ' ', 'g'));
+  old_phone_key := regexp_replace(p_phone, '\D', '', 'g');
+  new_name := trim(regexp_replace(coalesce(nullif(trim(p_name_new), ''), p_name), '\s+', ' ', 'g'));
+  new_phone := regexp_replace(coalesce(nullif(trim(p_phone_new), ''), p_phone), '\D', '', 'g');
+  new_phone_key := regexp_replace(new_phone, '\D', '', 'g');
+
+  if new_name = '' then
+    raise exception 'INVALID_NAME';
+  end if;
+
+  if new_phone_key = '' or length(new_phone_key) < 10 or length(new_phone_key) > 11 then
+    raise exception 'INVALID_PHONE';
+  end if;
+
+  select s.id into target_id
+  from public.submissions s
+  where s.name_key = old_name_key
+    and s.phone_key = old_phone_key;
+
+  if target_id is null then
+    return null;
+  end if;
+
+  if exists (
+    select 1
+    from public.submissions s
+    where s.phone_key = new_phone_key
+      and s.id <> target_id
+  ) then
+    raise exception 'PHONE_DUPLICATE';
+  end if;
+
+  update public.submissions s
+  set
+    name = new_name,
+    phone = new_phone,
+    affiliation = coalesce(trim(p_affiliation), ''),
+    spaces = coalesce(p_spaces, '{}'::jsonb)
+  where s.id = target_id
+  returning s.id into updated_id;
+
+  select json_build_object(
+    'id', s.id,
+    'name', s.name,
+    'phone', s.phone,
+    'affiliation', s.affiliation,
+    'spaces', s.spaces,
+    'submitted_at', s.submitted_at
+  )
+  into result
+  from public.submissions s
+  where s.id = updated_id;
+
+  return result;
+end;
+$$;
+
+grant execute on function public.update_submission(text, text, text, text, text, jsonb) to anon, authenticated;
+
+-- ------------------------------------------------------------------
+-- 4. Realtime (관리자 실시간 목록 · INSERT/UPDATE/DELETE)
+--    Dashboard → Database → Replication 에서 submissions 가 켜져 있는지 확인하세요.
+--    기존 DB에만 적용할 때는 handoff/supabase/update-submission.sql 을 실행하세요.
+-- ------------------------------------------------------------------
+alter table public.submissions replica identity full;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'submissions'
+  ) then
+    alter publication supabase_realtime add table public.submissions;
+  end if;
+end $$;
 
 -- ------------------------------------------------------------------
 -- 5. 관리자 계정 등록 (Auth에서 사용자 생성 후 실행)

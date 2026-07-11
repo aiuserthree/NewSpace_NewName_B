@@ -310,9 +310,10 @@ function InfoScreen() {
           <Notice
             tone="accent"
             title="이미 신청하신 분입니다"
-            action={<Button variant="secondary" size="sm" leftIcon="check-check" onClick={openLookup}>내용 확인하기</Button>}
+            action={<Button variant="secondary" size="sm" leftIcon="check-check" onClick={openLookup}>내용 확인·수정하기</Button>}
           >
             입력하신 이름과 연락처가 모두 일치하는 신청 내역이 있어요.
+            {window.SNC.isBeforeDeadline() ? ` 공모 마감(${window.SNC_CONFIG.deadlineShort}) 전까지 내용을 수정할 수 있습니다.` : ""}
           </Notice>
         ) : null}
 

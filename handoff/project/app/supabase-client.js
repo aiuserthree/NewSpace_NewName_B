@@ -50,6 +50,32 @@ window.SNC_DB = (function () {
     };
   }
 
+  function mapRpcError(error, context) {
+    if (!error) return error;
+    const msg = String(error.message || "");
+    const code = String(error.code || "");
+    if (code === "PGRST202" || msg.includes("Could not find the function")) {
+      const err = new Error("RPC_NOT_DEPLOYED");
+      err.code = "RPC_NOT_DEPLOYED";
+      err.detail = msg;
+      err.context = context;
+      return err;
+    }
+    if (msg.includes("DEADLINE_PASSED")) {
+      const err = new Error("DEADLINE_PASSED");
+      err.code = "DEADLINE_PASSED";
+      err.detail = msg;
+      return err;
+    }
+    if (msg.includes("PHONE_DUPLICATE")) {
+      const err = new Error("PHONE_DUPLICATE");
+      err.code = "PHONE_DUPLICATE";
+      err.detail = msg;
+      return err;
+    }
+    return error;
+  }
+
   async function find(name, phone) {
     const sb = getClient();
     if (!sb) return null;
@@ -97,6 +123,30 @@ window.SNC_DB = (function () {
     });
   }
 
+  async function updateSubmission(rec) {
+    const sb = getClient();
+    if (!sb) throw new Error("Supabase가 설정되지 않았습니다.");
+    const payload = {
+      p_name: window.SNC.normalizeName(rec.name),
+      p_phone: window.SNC.digits(rec.phone),
+      p_name_new: window.SNC.normalizeName(rec.nameNew != null ? rec.nameNew : rec.name),
+      p_phone_new: window.SNC.digits(rec.phoneNew != null ? rec.phoneNew : rec.phone),
+      p_affiliation: (rec.affiliation || "").trim(),
+      p_spaces: rec.spaces || {},
+    };
+    const { data, error } = await sb.rpc("update_submission", payload);
+    if (error) {
+      console.error("[SNC_DB] update_submission RPC failed", { payload, error });
+      throw mapRpcError(error, "update_submission");
+    }
+    if (!data) {
+      const err = new Error("NOT_FOUND");
+      err.code = "NOT_FOUND";
+      throw err;
+    }
+    return mapRow(data);
+  }
+
   function isAuthError(error) {
     if (!error) return false;
     const msg = String(error.message || "").toLowerCase();
@@ -126,17 +176,27 @@ window.SNC_DB = (function () {
     return (data || []).map(mapRow);
   }
 
-  function subscribe(onChange) {
+  function subscribe(onChange, onStatus) {
     const sb = getClient();
     if (!sb) return null;
-    const channel = sb
-      .channel("admin-submissions")
-      .on(
+    const channel = sb.channel("admin-submissions");
+    ["INSERT", "UPDATE", "DELETE"].forEach((event) => {
+      channel.on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "submissions" },
-        () => onChange()
-      )
-      .subscribe();
+        { event, schema: "public", table: "submissions" },
+        (payload) => {
+          if (onChange) onChange({ event, payload });
+        }
+      );
+    });
+    channel.subscribe((status, err) => {
+      if (onStatus) onStatus(status, err);
+      if (status === "SUBSCRIBED") {
+        console.info("[SNC_DB] realtime subscribed (INSERT/UPDATE/DELETE)");
+      } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        console.error("[SNC_DB] realtime subscription failed", status, err);
+      }
+    });
     return channel;
   }
 
@@ -188,6 +248,7 @@ window.SNC_DB = (function () {
     find,
     exists,
     saveSubmission,
+    updateSubmission,
     listAll,
     subscribe,
     signIn,

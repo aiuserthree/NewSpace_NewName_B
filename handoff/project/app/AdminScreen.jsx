@@ -129,6 +129,7 @@ function AdminScreen() {
   const [page, setPage] = React.useState(1);
   const [refreshBusy, setRefreshBusy] = React.useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = React.useState(null);
+  const [realtimeStatus, setRealtimeStatus] = React.useState("idle");
   const channelRef = React.useRef(null);
 
   const totalPages = Math.max(1, Math.ceil(rows.length / ADMIN_PAGE_SIZE));
@@ -141,6 +142,7 @@ function AdminScreen() {
     setRows([]);
     setPage(1);
     setLastRefreshedAt(null);
+    setRealtimeStatus("idle");
     if (channelRef.current && window.SNC_DB.getClient()) {
       window.SNC_DB.getClient().removeChannel(channelRef.current);
       channelRef.current = null;
@@ -170,9 +172,15 @@ function AdminScreen() {
       window.SNC_DB.getClient().removeChannel(channelRef.current);
       channelRef.current = null;
     }
-    channelRef.current = window.SNC_DB.subscribe(() => {
-      loadRows({ silent: true }).catch(() => {});
-    });
+    setRealtimeStatus("connecting");
+    channelRef.current = window.SNC_DB.subscribe(
+      () => {
+        loadRows({ silent: true }).catch(() => {});
+      },
+      (status) => {
+        setRealtimeStatus(status === "SUBSCRIBED" ? "live" : status === "CLOSED" ? "idle" : status.toLowerCase());
+      }
+    );
   }, [loadRows]);
 
   const onRefresh = async () => {
@@ -298,7 +306,9 @@ function AdminScreen() {
           <h1 style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: 22, fontWeight: 600, color: "var(--text-primary)" }}>신청자 목록</h1>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <Tag tone="wash" icon="users">총 {rows.length}건</Tag>
-            <Tag tone="wash" icon="sparkles">실시간 연동</Tag>
+            <Tag tone={realtimeStatus === "live" ? "wash" : "accent"} icon={realtimeStatus === "live" ? "sparkles" : "info"}>
+              {realtimeStatus === "live" ? "실시간 연동" : realtimeStatus === "connecting" ? "실시간 연결 중…" : "실시간 대기"}
+            </Tag>
             {lastRefreshedAt ? (
               <Tag tone="wash" icon="clock">갱신 {window.formatSubmittedAt(lastRefreshedAt.toISOString())}</Tag>
             ) : null}
