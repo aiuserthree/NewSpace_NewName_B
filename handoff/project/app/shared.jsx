@@ -299,6 +299,41 @@ window.formatSubmittedAt = function (iso) {
   const p = (n) => String(n).padStart(2, "0");
   return `${dt.getFullYear()}. ${p(dt.getMonth() + 1)}. ${p(dt.getDate())} ${p(dt.getHours())}:${p(dt.getMinutes())}`;
 };
+window.stripPhoneDigits = function (v) {
+  return (v || "").replace(/\D/g, "");
+};
+const PHONE_DISPLAY_RE = /\d{3}-\d{3,4}-\d{4}/g;
+function TelLink({ display, digits }) {
+  return (
+    <a
+      href={`tel:${digits}`}
+      style={{
+        color: "var(--text-link)",
+        fontWeight: 600,
+        textDecoration: "underline",
+        textUnderlineOffset: 2,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {display}
+    </a>
+  );
+}
+function linkifyPhoneNumbers(text) {
+  if (!text) return text;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  const re = new RegExp(PHONE_DISPLAY_RE.source, "g");
+  while ((match = re.exec(text)) !== null) {
+    if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index));
+    const display = match[0];
+    parts.push(<TelLink key={`${match.index}-${display}`} display={display} digits={window.stripPhoneDigits(display)} />);
+    lastIndex = match.index + display.length;
+  }
+  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
+  return parts.length ? parts : text;
+}
 
 /* ------------------------------------------------------------------ *
  * 6. Shell — 모바일 웹 프레임 (데스크톱에서는 중앙 정렬된 폰 컬럼)
@@ -364,15 +399,15 @@ function PhoneCorrectionNotice({ compact = false }) {
         <>
           <strong style={{ color: "var(--text-primary)" }}>{n.title}</strong>
           {" "}
-          {n.body}
+          {linkifyPhoneNumbers(n.body)}
         </>
       ) : (
-        n.body
+        linkifyPhoneNumbers(n.body)
       )}
       <br /><br />
       <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>{n.contactLabel}</span>
       {" · "}
-      {n.contact}
+      {linkifyPhoneNumbers(n.contact)}
       {n.isTempContact ? (
         <>
           <br />
