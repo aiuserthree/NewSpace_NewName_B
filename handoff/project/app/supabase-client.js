@@ -81,7 +81,8 @@ window.SNC_DB = (function () {
       affiliation: (rec.affiliation || "").trim(),
       spaces: rec.spaces || {},
     };
-    const { data, error } = await sb.from("submissions").insert(payload).select().single();
+    // Anon role may INSERT but not SELECT (RLS). Do not chain .select() here.
+    const { error } = await sb.from("submissions").insert(payload);
     if (error) {
       if (error.code === "23505") {
         const dup = new Error("DUPLICATE");
@@ -90,7 +91,10 @@ window.SNC_DB = (function () {
       }
       throw error;
     }
-    return mapRow(data);
+    return mapRow({
+      ...payload,
+      submitted_at: new Date().toISOString(),
+    });
   }
 
   function isAuthError(error) {

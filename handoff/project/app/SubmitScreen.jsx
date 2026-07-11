@@ -185,6 +185,7 @@ function SubmitScreen({ layout = "카드" }) {
         window.goPage("lookup", window.SNC.lookupParams(current.name, current.phone));
         return;
       }
+      console.error("[SubmitScreen] submit failed", e);
       setShowConfirm(false);
       setSubmitError("제출 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {

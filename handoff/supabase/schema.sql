@@ -22,6 +22,8 @@ create index if not exists submissions_submitted_at_idx
 alter table public.submissions enable row level security;
 
 -- 익명(사용자) INSERT만 허용 — SELECT는 RPC로 제한
+-- ⚠️ 클라이언트 insert 후 .select()를 호출하면 RLS(42501)로 실패합니다.
+--    saveSubmission은 insert만 하고 응답은 로컬에서 구성합니다.
 drop policy if exists "anon insert submissions" on public.submissions;
 create policy "anon insert submissions"
   on public.submissions for insert
