@@ -5,6 +5,7 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
   const { Button, HeroWash, Icon, Tag } = window.HarvestDesignSystem_eb006c;
   const spaces = window.CONTEST_SPACES;
   const cfg = window.SNC_CONFIG;
+  const open = window.SNC.isBeforeDeadline();
   const heroImg = spaces[0].image;
   const [viewer, setViewer] = React.useState(null);
 
@@ -151,7 +152,8 @@ function IntroScreen({ onStart, onCheck, layout = "워시" }) {
       {/* CTA */}
       <section style={{ padding: "12px 26px 34px", position: "sticky", bottom: 0, background: "linear-gradient(to top, var(--surface-page) 72%, rgba(255,248,241,0))" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <Button variant="primary" size="lg" fullWidth rightIcon="arrow-right" onClick={onStart}>
+          {!open ? <DeadlineClosedNotice /> : null}
+          <Button variant="primary" size="lg" fullWidth rightIcon="arrow-right" disabled={!open} onClick={open ? onStart : undefined}>
             참여 시작하기
           </Button>
           <Button variant="secondary" size="lg" fullWidth leftIcon="check-check" onClick={onCheck}>

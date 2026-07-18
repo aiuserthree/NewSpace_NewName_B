@@ -194,6 +194,7 @@ function ConsentField({ checked, onChange, error, onViewTerms }) {
 
 function InfoScreen() {
   const { Button, Input, Notice, StepIndicator } = window.HarvestDesignSystem_eb006c;
+  const open = window.SNC.isBeforeDeadline();
 
   const prev = window.SNC.readCurrent() || {};
   const [name, setName] = React.useState(prev.name || "");
@@ -250,6 +251,7 @@ function InfoScreen() {
   };
 
   const onNext = async () => {
+    if (!open) return;
     setRemoteError("");
     const next = buildErrors();
     if (Object.keys(next).length) {
@@ -321,6 +323,8 @@ function InfoScreen() {
           <Notice tone="accent" icon="info">{remoteError}</Notice>
         ) : null}
 
+        {!open ? <DeadlineClosedNotice /> : null}
+
         <ConsentField
           checked={consent}
           onChange={onConsent}
@@ -329,7 +333,7 @@ function InfoScreen() {
         />
 
         <div style={{ marginTop: "auto", paddingTop: 8 }}>
-          <Button variant="primary" size="lg" fullWidth rightIcon="arrow-right" disabled={busy} onClick={onNext}>
+          <Button variant="primary" size="lg" fullWidth rightIcon="arrow-right" disabled={!open || busy} onClick={onNext}>
             {busy ? "확인 중…" : "다음"}
           </Button>
         </div>

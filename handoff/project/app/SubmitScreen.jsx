@@ -138,6 +138,7 @@ function SubmitScreen({ layout = "카드" }) {
   const spaces = window.CONTEST_SPACES;
   const current = window.SNC.readCurrent() || {};
   const applicantName = current.name || "";
+  const open = window.SNC.isBeforeDeadline();
 
   const cardLayout = layout === "컴팩트" ? "compact" : layout === "썸네일" ? "thumb" : "image-top";
 
@@ -155,6 +156,7 @@ function SubmitScreen({ layout = "카드" }) {
   const canSubmit = filledRequired === spaces.length;
 
   const openConfirm = () => {
+    if (!open) return;
     setSubmitError("");
     const errs = {};
     spaces.forEach((s) => {
@@ -183,6 +185,11 @@ function SubmitScreen({ layout = "카드" }) {
       if (current.phone) await window.SNC.saveSubmission(record);
       window.goPage("complete");
     } catch (e) {
+      if (e && e.code === "DEADLINE_PASSED") {
+        setShowConfirm(false);
+        setSubmitError("공모가 종료되어 제출할 수 없습니다.");
+        return;
+      }
       if (e && e.code === "DUPLICATE") {
         window.goPage("lookup", window.SNC.lookupParams(current.name, current.phone));
         return;
@@ -228,14 +235,19 @@ function SubmitScreen({ layout = "카드" }) {
       </div>
 
       <div style={{ padding: "10px 26px 34px", position: "sticky", bottom: 0, background: "linear-gradient(to top, var(--surface-page) 74%, rgba(255,248,241,0))" }}>
+        {!open ? (
+          <div style={{ marginBottom: 12 }}>
+            <DeadlineClosedNotice />
+          </div>
+        ) : null}
         {submitError ? (
           <p style={{ margin: "0 0 12px", fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--accent)", textAlign: "center" }}>{submitError}</p>
         ) : null}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 12, fontFamily: "var(--font-sans)", fontSize: 12, letterSpacing: "0.015em", color: canSubmit ? "var(--accent)" : "var(--text-tertiary)" }}>
-          <Icon name={canSubmit ? "circle-check" : "info"} size={14} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 12, fontFamily: "var(--font-sans)", fontSize: 12, letterSpacing: "0.015em", color: canSubmit && open ? "var(--accent)" : "var(--text-tertiary)" }}>
+          <Icon name={canSubmit && open ? "circle-check" : "info"} size={14} />
           필수 {filledRequired} / {spaces.length} 공간 작성됨
         </div>
-        <Button variant="primary" size="lg" fullWidth disabled={!canSubmit || busy} onClick={openConfirm}>
+        <Button variant="primary" size="lg" fullWidth disabled={!canSubmit || busy || !open} onClick={openConfirm}>
           {busy ? "제출 중…" : "제출하기"}
         </Button>
       </div>

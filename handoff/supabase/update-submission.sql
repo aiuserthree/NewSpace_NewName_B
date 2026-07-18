@@ -26,7 +26,7 @@ set search_path = public
 as $$
 declare
   result json;
-  deadline timestamptz := '2026-07-18 23:59:59+09';
+  deadline timestamptz := '2026-07-25 23:59:59+09';
   target_id uuid;
   updated_id uuid;
   old_name_key text;

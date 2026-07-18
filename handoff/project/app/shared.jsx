@@ -7,12 +7,12 @@
 window.SNC_CONFIG = {
   title: "영암교회 새 공간 이름 공모전",
   church: "우리 교회",
-  // ⚠️ 임시 마감일 — 공모 마감일 확정 후 교체 (열린 이슈 #2)
-  deadline: "2026년 7월 18일(토) 밤 12시",
-  deadlineShort: "7/18",
-  deadlineIntro: "7월 18일(토)까지",
-  deadlineAt: "2026-07-18T23:59:59+09:00",
-  isTempDeadline: true,
+  deadline: "2026년 7월 25일(토) 23:59",
+  deadlineShort: "7/25",
+  deadlineIntro: "7월 25일(토)까지",
+  deadlineAt: "2026-07-25T23:59:59+09:00",
+  closedNotice: "온라인 공모가 종료되었습니다. 7월 25일(토) 23:59까지 접수를 받았습니다.",
+  isTempDeadline: false,
   // ⚠️ 임시 개인정보 안내 문구 — 확정 후 교체 (열린 이슈 #5)
   privacyNotice:
     "입력하신 이름, 연락처, 소속(선택)은 공모 진행과 중복 확인을 위해서만 사용되며, 공모 종료 후 안전하게 파기됩니다.",
@@ -219,6 +219,11 @@ window.SNC = (function () {
       return Date.now() <= deadline.getTime();
     },
     async saveSubmission(rec) {
+      if (!this.isBeforeDeadline()) {
+        const err = new Error("DEADLINE_PASSED");
+        err.code = "DEADLINE_PASSED";
+        throw err;
+      }
       const normalized = {
         name: normalizeName(rec.name),
         phone: digits(rec.phone),
@@ -467,3 +472,14 @@ function PhoneCorrectionNotice({ compact = false }) {
 }
 
 window.PhoneCorrectionNotice = PhoneCorrectionNotice;
+
+function DeadlineClosedNotice() {
+  const { Notice } = window.HarvestDesignSystem_eb006c;
+  return (
+    <Notice tone="info" icon="lock" title="공모가 종료되었습니다">
+      {window.SNC_CONFIG.closedNotice}
+    </Notice>
+  );
+}
+
+window.DeadlineClosedNotice = DeadlineClosedNotice;
